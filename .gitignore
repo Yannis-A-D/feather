@@ -15,6 +15,7 @@ dist/
 build/
 .eggs/
 *.whl
+!releases/*.whl
 
 # Virtual Environments
 .venv/
