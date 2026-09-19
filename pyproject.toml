@@ -1,0 +1,38 @@
+[build-system]
+requires = ["maturin>=1.5,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "pixelforge"
+version = "0.1.0"
+description = "Blazing-fast, anti-aliased 2D vector rendering & image processing extension for Python"
+readme = "README.md"
+authors = [{ name = "PixelForge Contributors" }]
+license = { text = "MIT" }
+requires-python = ">=3.10"
+keywords = ["rendering", "graphics", "vector", "antialiasing", "image-processing", "pillow-alternative", "skia", "simd"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Rust",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pillow>=10.0.0",
+    "numpy>=1.26.0",
+    "pytest>=8.0.0",
+]
+
+[tool.maturin]
+features = ["pyo3/extension-module"]
+python-source = "python"
+module-name = "pixelforge._pixelforge"

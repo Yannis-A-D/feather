@@ -1,0 +1,27 @@
+[package]
+name = "pixelforge"
+version = "0.1.0"
+edition = "2021"
+authors = ["pixelforge contributors"]
+description = "Blazing-fast, anti-aliased 2D vector rendering & image processing extension for Python"
+license = "MIT"
+readme = "README.md"
+
+[lib]
+name = "_pixelforge"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.22", features = ["extension-module", "abi3-py310"] }
+tiny-skia = "0.11"
+fast_image_resize = "5.1"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp"] }
+rayon = "1.10"
+csscolorparser = "0.7"
+svgtypes = "0.15"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+panic = "abort"

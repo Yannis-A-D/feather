@@ -1,0 +1,31 @@
+# Rust
+/target
+Cargo.lock
+**/*.rs.bk
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+*.dylib
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+
+# Output artifacts
+outputs/
+benchmark_results/
