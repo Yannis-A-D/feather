@@ -1,13 +1,13 @@
 """
-PixelForge Feature Showcase
+Feather Feature Showcase
 Demonstrates anti-aliasing, linear/radial gradients, rounded rectangles,
 custom vector paths, SVG paths, blend modes, and filter effects.
 """
 
-from pixelforge import Canvas, LinearGradient, RadialGradient, Path
+from feather import Canvas, LinearGradient, RadialGradient, Path
 
 def run_showcase():
-    print("Creating PixelForge Showcase Image...")
+    print("Creating Feather Showcase Image...")
     canvas = Canvas(1000, 700, background="#0f0f17")
 
     # 1. Header with linear gradient

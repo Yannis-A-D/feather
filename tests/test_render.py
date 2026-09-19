@@ -1,11 +1,11 @@
 """
-Visual quality test: renders shapes side-by-side (Pillow vs PixelForge)
+Visual quality test: renders shapes side-by-side (Pillow vs Feather)
 to visually showcase anti-aliasing and vector quality.
 """
 
 import os
 from PIL import Image, ImageDraw
-from pixelforge import Canvas, LinearGradient, RadialGradient, Path
+from feather import Canvas, LinearGradient, RadialGradient, Path
 
 def generate_visual_comparison():
     output_dir = os.path.join(os.path.dirname(__file__), "..", "outputs")
@@ -35,7 +35,7 @@ def generate_visual_comparison():
     pil_path = os.path.join(output_dir, "comparison_pillow.png")
     pil_img.save(pil_path)
 
-    # 2. PixelForge rendering (smooth subpixel anti-aliasing & gradients)
+    # 2. Feather rendering (smooth subpixel anti-aliasing & gradients)
     pf_canvas = Canvas(w, h, background="#1e1e2e")
 
     # Anti-aliased circle with radial gradient
@@ -59,14 +59,14 @@ def generate_visual_comparison():
     heart = "M 450,400 A 30,30 0 0,0 400,440 Q 400,480 450,520 Q 500,480 500,440 A 30,30 0 0,0 450,400 Z"
     pf_canvas.draw_svg_path(heart, fill="#f38ba8", stroke="#f5c2e7", stroke_width=2.0)
 
-    pf_path = os.path.join(output_dir, "comparison_pixelforge.png")
+    pf_path = os.path.join(output_dir, "comparison_feather.png")
     pf_canvas.save(pf_path)
 
     # 3. Create a side-by-side comparison image
     side_by_side = Image.new("RGBA", (w * 2 + 20, h + 60), (17, 17, 27, 255))
     sbs_draw = ImageDraw.Draw(side_by_side)
     sbs_draw.text((w // 2 - 60, 20), "Pillow (PIL) - Aliased / Jagged", fill=(243, 139, 168, 255))
-    sbs_draw.text((w + w // 2 - 60, 20), "PixelForge - Anti-Aliased & Smooth", fill=(166, 227, 161, 255))
+    sbs_draw.text((w + w // 2 - 60, 20), "Feather - Anti-Aliased & Smooth", fill=(166, 227, 161, 255))
 
     side_by_side.paste(pil_img, (0, 50))
     pf_pil = pf_canvas.to_pillow()

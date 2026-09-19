@@ -5,13 +5,13 @@ import numpy as np
 
 def run_benchmarks():
     print("=" * 60)
-    print("  PixelForge vs Pillow (PIL) Performance Benchmark")
+    print("  Feather vs Pillow (PIL) Performance Benchmark")
     print("=" * 60)
 
     try:
-        from pixelforge import Canvas, batch_resize
+        from feather import Canvas, batch_resize
     except ImportError as e:
-        print(f"Error importing pixelforge: {e}")
+        print(f"Error importing feather: {e}")
         return
 
     # Benchmark 1: Drawing 5,000 circles
@@ -42,7 +42,7 @@ def run_benchmarks():
         pf_canvas.draw_circle(cx, cy, r, fill="#f38ba8c8", stroke="#cdd6f4", stroke_width=2.0)
     pf_time = time.perf_counter() - start
     speedup = pil_time / pf_time if pf_time > 0 else 1.0
-    print(f"  PixelForge: {pf_time:.4f}s  (Flawless subpixel anti-aliasing) -> {speedup:.2f}x speedup")
+    print(f"  Feather:    {pf_time:.4f}s  (Flawless subpixel anti-aliasing) -> {speedup:.2f}x speedup")
 
     # Benchmark 2: Drawing 2,500 Rounded Rectangles
     n_rects = 2500
@@ -68,7 +68,7 @@ def run_benchmarks():
         pf_canvas.draw_rounded_rect(x, y, 120, 80, rx=16, fill="#89b4fab4", stroke="#f5e0dc", stroke_width=2.0)
     pf_time = time.perf_counter() - start
     speedup = pil_time / pf_time if pf_time > 0 else 1.0
-    print(f"  PixelForge: {pf_time:.4f}s  -> {speedup:.2f}x speedup")
+    print(f"  Feather:    {pf_time:.4f}s  -> {speedup:.2f}x speedup")
 
     # Benchmark 3: High-Quality Image Resizing (Bilinear)
     n_resizes = 100
@@ -84,13 +84,13 @@ def run_benchmarks():
     pil_time = time.perf_counter() - start
     print(f"  Pillow:     {pil_time:.4f}s")
 
-    # PixelForge SIMD resize
+    # Feather SIMD resize
     start = time.perf_counter()
     for _ in range(n_resizes):
         _ = source_pf.resize(512, 512, filter="bilinear")
     pf_time = time.perf_counter() - start
     speedup = pil_time / pf_time if pf_time > 0 else 1.0
-    print(f"  PixelForge: {pf_time:.4f}s  -> {speedup:.2f}x speedup (SIMD)")
+    print(f"  Feather:    {pf_time:.4f}s  -> {speedup:.2f}x speedup (SIMD)")
 
     # Benchmark 4: Multi-core Batch Resizing
     batch_count = 50
@@ -104,12 +104,12 @@ def run_benchmarks():
     pil_time = time.perf_counter() - start
     print(f"  Pillow (Single-threaded): {pil_time:.4f}s")
 
-    # PixelForge Rayon parallel
+    # Feather Rayon parallel
     start = time.perf_counter()
     _ = batch_resize(batch_pf, 256, 256, filter="bilinear")
     pf_time = time.perf_counter() - start
     speedup = pil_time / pf_time if pf_time > 0 else 1.0
-    print(f"  PixelForge (Multi-Core):  {pf_time:.4f}s  -> {speedup:.2f}x speedup")
+    print(f"  Feather (Multi-Core):     {pf_time:.4f}s  -> {speedup:.2f}x speedup")
 
     print("\n" + "=" * 60)
     print("Benchmark complete!")

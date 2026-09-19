@@ -1,28 +1,28 @@
-# ⚡ PixelForge
+# 🪶 Feather
 
 [![Rust](https://img.shields.io/badge/Rust-1.75%2B-orange.svg?logo=rust)](https://www.rust-lang.org)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg?logo=python)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![SIMD Accelerated](https://img.shields.io/badge/SIMD-AVX2%20%7C%20SSE4.1%20%7C%20NEON-red.svg)](https://github.com)
 
-**PixelForge** is a high-performance, memory-safe 2D vector graphics and image processing extension for Python, built from the ground up in **Rust**.
+**Feather** is a high-performance, memory-safe 2D vector graphics and image processing extension for Python, built from the ground up in **Rust**.
 
-Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) rendering engine, PixelForge provides **flawless subpixel anti-aliasing**, **SIMD acceleration**, **multi-core batch processing**, and seamless integration with **NumPy** and **Pillow**.
+Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) rendering engine, Feather provides **flawless subpixel anti-aliasing**, **feathered soft edges**, **SIMD acceleration**, **multi-core batch processing**, and seamless integration with **NumPy** and **Pillow**.
 
 ---
 
-## 🚀 Why PixelForge?
+## 🚀 Why Feather?
 
-| Feature | Pillow (`PIL.ImageDraw`) | PixelForge |
+| Feature | Pillow (`PIL.ImageDraw`) | Feather |
 | :--- | :--- | :--- |
-| **Anti-Aliasing** | ❌ Jagged, pixelated edges |  **Flawless subpixel anti-aliasing** |
-| **Rounded Rectangles** | ⚠️ Basic or broken corner radii |  **Smooth bezier rounded corners (`rx`, `ry`)** |
-| **Gradients** | ❌ None (requires manual loops) |  **Linear & Radial Gradients with stops** |
-| **Vector Paths** | ❌ Limited polylines |  **Quadratic/Cubic Beziers & SVG `d` Paths** |
-| **Multi-Core / GIL** | ❌ Locks Python GIL, single-threaded |  **Multi-core Rayon parallelism, GIL released** |
-| **Image Resizing** | ⚠️ Standard CPU resampling |  **SIMD-accelerated (AVX2/SSE4.1)** |
-| **Blend Modes** | ⚠️ Basic alpha compositing |  **24+ Blend Modes (Multiply, Screen, etc.)** |
-| **NumPy / Pillow Bridge** | ⚠️ Slow conversions |  **Direct zero-copy buffer interop** |
+| **Anti-Aliasing** | ❌ Jagged, pixelated edges | 🪶 **Flawless subpixel anti-aliasing & soft edges** |
+| **Rounded Rectangles** | ⚠️ Basic or broken corner radii | 🪶 **Smooth bezier rounded corners (`rx`, `ry`)** |
+| **Gradients** | ❌ None (requires manual loops) | 🪶 **Linear & Radial Gradients with stops** |
+| **Vector Paths** | ❌ Limited polylines | 🪶 **Quadratic/Cubic Beziers & SVG `d` Paths** |
+| **Multi-Core / GIL** | ❌ Locks Python GIL, single-threaded | 🪶 **Multi-core Rayon parallelism, GIL released** |
+| **Image Resizing** | ⚠️ Standard CPU resampling | 🪶 **SIMD-accelerated (AVX2/SSE4.1)** |
+| **Blend Modes** | ⚠️ Basic alpha compositing | 🪶 **24+ Blend Modes (Multiply, Screen, etc.)** |
+| **NumPy / Pillow Bridge** | ⚠️ Slow conversions | 🪶 **Direct zero-copy buffer interop** |
 
 ---
 
@@ -31,8 +31,8 @@ Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) renderi
 ### From Source (Maturin)
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/pixelforge.git
-cd pixelforge
+git clone https://github.com/yourusername/feather.git
+cd feather
 
 # Install directly into your active Python environment
 pip install maturin
@@ -46,7 +46,7 @@ maturin develop --release
 ### 1. Anti-Aliased Shapes & Gradients
 
 ```python
-from pixelforge import Canvas, LinearGradient, RadialGradient
+from feather import Canvas, LinearGradient, RadialGradient
 
 # Create a high-resolution canvas with a dark background
 canvas = Canvas(800, 600, background="#11111b")
@@ -81,7 +81,7 @@ canvas.save("render.png")
 ### 2. SVG Paths & Complex Bezier Curves
 
 ```python
-from pixelforge import Canvas, Path
+from feather import Canvas, Path
 
 canvas = Canvas(400, 400, background="#181825")
 
@@ -105,7 +105,7 @@ canvas.save("paths.png")
 ### 3. SIMD Resizing & Image Filters
 
 ```python
-from pixelforge import Canvas
+from feather import Canvas
 
 # Load an image
 img = Canvas.open("photo.png")
@@ -125,10 +125,10 @@ enhanced.save("enhanced.jpg", quality=95)
 
 ### 4. Multi-Core Batch Processing
 
-PixelForge releases the Python GIL during heavy computations, allowing native multithreading across all CPU cores with `rayon`:
+Feather releases the Python GIL during heavy computations, allowing native multithreading across all CPU cores with `rayon`:
 
 ```python
-from pixelforge import Canvas, batch_resize, batch_blur
+from feather import Canvas, batch_resize, batch_blur
 
 images = [Canvas.open(f"input_{i}.png") for i in range(100)]
 
@@ -146,19 +146,19 @@ blurred_all = batch_blur(resized_all, sigma=2.0)
 ```python
 from PIL import Image
 import numpy as np
-from pixelforge import Canvas
+from feather import Canvas
 
-# Pillow -> PixelForge
+# Pillow -> Feather
 pil_img = Image.open("avatar.png")
 canvas = Canvas.from_pillow(pil_img)
 
 # Draw smooth vector overlays
 canvas.draw_circle(100, 100, radius=40, stroke="#00ffcc", stroke_width=4.0)
 
-# PixelForge -> Pillow
+# Feather -> Pillow
 result_pil = canvas.to_pillow()
 
-# PixelForge <-> NumPy
+# Feather <-> NumPy
 np_array = canvas.to_numpy()  # uint8 shape (H, W, 4)
 new_canvas = Canvas.from_numpy(np_array)
 ```

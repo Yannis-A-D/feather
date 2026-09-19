@@ -1,5 +1,5 @@
 """
-PixelForge: High-performance, anti-aliased 2D vector graphics & image processing.
+Feather: High-performance, anti-aliased 2D vector graphics & image processing.
 Powered by Rust, tiny-skia, and fast_image_resize.
 """
 
@@ -16,7 +16,7 @@ if sys.platform == "win32":
         except OSError:
             pass
 
-from ._pixelforge import (
+from ._feather import (
     Canvas as _NativeCanvas,
     Path,
     LinearGradient,
@@ -36,7 +36,7 @@ class Canvas(_NativeCanvas):
     """
 
     def __repr__(self) -> str:
-        return f"<PixelForge.Canvas size={self.width}x{self.height}>"
+        return f"<Feather.Canvas size={self.width}x{self.height}>"
 
     def to_pillow(self):
         """

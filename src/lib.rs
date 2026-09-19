@@ -14,7 +14,7 @@ fn version() -> &'static str {
 }
 
 #[pymodule]
-fn _pixelforge(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn _feather(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(version, m)?)?;
     m.add_function(wrap_pyfunction!(batch::batch_resize, m)?)?;
     m.add_function(wrap_pyfunction!(batch::batch_blur, m)?)?;

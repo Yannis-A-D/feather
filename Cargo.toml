@@ -1,14 +1,14 @@
 [package]
-name = "pixelforge"
+name = "feather"
 version = "0.1.0"
 edition = "2021"
-authors = ["pixelforge contributors"]
+authors = ["Feather Contributors"]
 description = "Blazing-fast, anti-aliased 2D vector rendering & image processing extension for Python"
 license = "MIT"
 readme = "README.md"
 
 [lib]
-name = "_pixelforge"
+name = "_feather"
 crate-type = ["cdylib"]
 
 [dependencies]
