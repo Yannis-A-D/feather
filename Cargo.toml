@@ -1,6 +1,6 @@
 [package]
 name = "feather"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Feather Contributors"]
 description = "Blazing-fast, anti-aliased 2D vector rendering & image processing extension for Python"
@@ -15,10 +15,13 @@ crate-type = ["cdylib"]
 pyo3 = { version = "0.22", features = ["extension-module", "abi3-py310"] }
 tiny-skia = "0.11"
 fast_image_resize = "5.1"
-image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif"] }
 rayon = "1.10"
 csscolorparser = "0.7"
 svgtypes = "0.15"
+fontdue = "0.9"
+resvg = "0.44"
+usvg = "0.44"
 
 [profile.release]
 opt-level = 3

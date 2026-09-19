@@ -2,6 +2,9 @@ use crate::color::parse_color;
 use crate::filters;
 use crate::gradient::{LinearGradient, RadialGradient};
 use crate::path::Path;
+use crate::shadow;
+use crate::svg_render;
+use crate::text::{self, Font};
 use crate::transform;
 use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PySequence};
@@ -9,7 +12,7 @@ use std::fs::File;
 use std::io::BufWriter;
 use std::path::Path as StdPath;
 use tiny_skia::{
-    BlendMode, Color, FillRule, LineCap, LineJoin, Paint, PathBuilder, Pixmap, Rect,
+    BlendMode, Color, FillRule, LineCap, LineJoin, Mask, Paint, PathBuilder, Pixmap, Rect,
     Stroke, Transform,
 };
 
@@ -95,10 +98,19 @@ where
     }
 }
 
+#[derive(Clone)]
+struct CanvasState {
+    transform: Transform,
+    mask: Option<Mask>,
+}
+
 #[pyclass(subclass)]
 #[derive(Clone)]
 pub struct Canvas {
     pub(crate) pixmap: Pixmap,
+    pub(crate) transform: Transform,
+    pub(crate) mask: Option<Mask>,
+    state_stack: Vec<CanvasState>,
 }
 
 #[pymethods]
@@ -121,7 +133,12 @@ impl Canvas {
             pixmap.fill(color);
         }
 
-        Ok(Self { pixmap })
+        Ok(Self {
+            pixmap,
+            transform: Transform::identity(),
+            mask: None,
+            state_stack: Vec::new(),
+        })
     }
 
     #[getter]
@@ -138,6 +155,370 @@ impl Canvas {
     pub fn size(&self) -> (u32, u32) {
         (self.pixmap.width(), self.pixmap.height())
     }
+
+    // --- State Stack & Transformations ---
+
+    pub fn save_state(&mut self) {
+        self.state_stack.push(CanvasState {
+            transform: self.transform,
+            mask: self.mask.clone(),
+        });
+    }
+
+    pub fn restore_state(&mut self) -> PyResult<()> {
+        if let Some(state) = self.state_stack.pop() {
+            self.transform = state.transform;
+            self.mask = state.mask;
+            Ok(())
+        } else {
+            Err(pyo3::exceptions::PyIndexError::new_err(
+                "No saved states left on canvas stack to restore",
+            ))
+        }
+    }
+
+    pub fn translate(&mut self, tx: f32, ty: f32) {
+        self.transform = self.transform.pre_translate(tx, ty);
+    }
+
+    pub fn rotate(&mut self, degrees: f32) {
+        self.transform = self.transform.pre_rotate(degrees);
+    }
+
+    pub fn scale(&mut self, sx: f32, sy: f32) {
+        self.transform = self.transform.pre_scale(sx, sy);
+    }
+
+    pub fn reset_transform(&mut self) {
+        self.transform = Transform::identity();
+    }
+
+    // --- Clipping Masks ---
+
+    pub fn clip_path(&mut self, path: &mut Path) -> PyResult<()> {
+        let skia_path = path
+            .get_skia_path()
+            .ok_or_else(|| pyo3::exceptions::PyValueError::new_err("Empty path cannot be used for clipping"))?;
+
+        if let Some(existing) = &mut self.mask {
+            existing.intersect_path(&skia_path, FillRule::Winding, true, self.transform);
+        } else {
+            let mut mask = match Mask::new(self.pixmap.width(), self.pixmap.height()) {
+                Some(m) => m,
+                None => return Err(pyo3::exceptions::PyMemoryError::new_err("Failed to allocate clip mask")),
+            };
+            mask.fill_path(&skia_path, FillRule::Winding, true, self.transform);
+            self.mask = Some(mask);
+        }
+        Ok(())
+    }
+
+    pub fn clip_rect(&mut self, x: f32, y: f32, width: f32, height: f32) -> PyResult<()> {
+        let rect = Rect::from_xywh(x, y, width, height)
+            .ok_or_else(|| pyo3::exceptions::PyValueError::new_err("Invalid clip rect dimensions"))?;
+        let mut pb = PathBuilder::new();
+        pb.push_rect(rect);
+        let skia_path = pb.finish().unwrap();
+
+        let mut path_obj = Path {
+            builder: None,
+            finished: Some(skia_path),
+        };
+        self.clip_path(&mut path_obj)
+    }
+
+    pub fn clip_circle(&mut self, cx: f32, cy: f32, radius: f32) -> PyResult<()> {
+        if radius <= 0.0 {
+            return Err(pyo3::exceptions::PyValueError::new_err("Clip circle radius must be positive"));
+        }
+        let mut pb = PathBuilder::new();
+        pb.push_circle(cx, cy, radius);
+        let skia_path = pb.finish().unwrap();
+
+        let mut path_obj = Path {
+            builder: None,
+            finished: Some(skia_path),
+        };
+        self.clip_path(&mut path_obj)
+    }
+
+    #[pyo3(signature = (x, y, width, height, rx, ry=None))]
+    pub fn clip_rounded_rect(
+        &mut self,
+        x: f32,
+        y: f32,
+        width: f32,
+        height: f32,
+        rx: f32,
+        ry: Option<f32>,
+    ) -> PyResult<()> {
+        let ry = ry.unwrap_or(rx);
+        let mut path = Path::new();
+        path.add_rect(x, y, width, height)?;
+        // Use smooth bezier rounded rectangle for clipping
+        let right = x + width;
+        let bottom = y + height;
+        let k = 0.552284749831f32;
+        let dx = rx * (1.0 - k);
+        let dy = ry * (1.0 - k);
+
+        let mut pb = PathBuilder::new();
+        pb.move_to(x + rx, y);
+        pb.line_to(right - rx, y);
+        pb.cubic_to(right - dx, y, right, y + dy, right, y + ry);
+        pb.line_to(right, bottom - ry);
+        pb.cubic_to(right, bottom - dy, right - dx, bottom, right - rx, bottom);
+        pb.line_to(x + rx, bottom);
+        pb.cubic_to(x + dx, bottom, x, bottom - dy, x, bottom - ry);
+        pb.line_to(x, y + ry);
+        pb.cubic_to(x, y + dy, x + dx, y, x + rx, y);
+        pb.close();
+
+        let skia_path = pb.finish().ok_or_else(|| {
+            pyo3::exceptions::PyValueError::new_err("Failed to construct rounded rect clip")
+        })?;
+
+        let mut path_obj = Path {
+            builder: None,
+            finished: Some(skia_path),
+        };
+        self.clip_path(&mut path_obj)
+    }
+
+    pub fn reset_clip(&mut self) {
+        self.mask = None;
+    }
+
+    // --- Drop Shadows & Glow ---
+
+    #[pyo3(signature = (x, y, width, height, rx=0.0, ry=None, blur=10.0, offset_x=0.0, offset_y=4.0, color=None))]
+    pub fn draw_drop_shadow(
+        &mut self,
+        x: f32,
+        y: f32,
+        width: f32,
+        height: f32,
+        rx: f32,
+        ry: Option<f32>,
+        blur: f32,
+        offset_x: f32,
+        offset_y: f32,
+        color: Option<&Bound<'_, PyAny>>,
+    ) -> PyResult<()> {
+        let c = if let Some(c_obj) = color {
+            parse_color(c_obj)?
+        } else {
+            Color::from_rgba8(0, 0, 0, 128)
+        };
+
+        shadow::render_drop_shadow_rect(
+            &mut self.pixmap,
+            x,
+            y,
+            width,
+            height,
+            rx,
+            ry.unwrap_or(rx),
+            blur,
+            offset_x,
+            offset_y,
+            c,
+        );
+        Ok(())
+    }
+
+    #[pyo3(signature = (cx, cy, radius, blur=15.0, color=None))]
+    pub fn draw_glow(
+        &mut self,
+        cx: f32,
+        cy: f32,
+        radius: f32,
+        blur: f32,
+        color: Option<&Bound<'_, PyAny>>,
+    ) -> PyResult<()> {
+        let c = if let Some(c_obj) = color {
+            parse_color(c_obj)?
+        } else {
+            Color::from_rgba8(255, 255, 255, 180)
+        };
+
+        shadow::render_drop_shadow_circle(
+            &mut self.pixmap,
+            cx,
+            cy,
+            radius,
+            blur,
+            0.0,
+            0.0,
+            c,
+        );
+        Ok(())
+    }
+
+    // --- Modern Typography ---
+
+    #[pyo3(signature = (text, x, y, size=16.0, color=None, font=None))]
+    pub fn draw_text(
+        &mut self,
+        text: &str,
+        x: f32,
+        y: f32,
+        size: f32,
+        color: Option<&Bound<'_, PyAny>>,
+        font: Option<&Font>,
+    ) -> PyResult<()> {
+        let c = if let Some(c_obj) = color {
+            parse_color(c_obj)?
+        } else {
+            Color::BLACK
+        };
+
+        let resolved_font = if let Some(f) = font {
+            f.clone()
+        } else {
+            Font::get_default()?
+        };
+
+        text::draw_text_to_pixmap(
+            &mut self.pixmap,
+            &resolved_font.inner,
+            text,
+            x,
+            y,
+            size,
+            c,
+        );
+        Ok(())
+    }
+
+    #[pyo3(signature = (text, x, y, max_width, size=16.0, color=None, line_spacing=4.0, font=None))]
+    pub fn draw_text_box(
+        &mut self,
+        text: &str,
+        x: f32,
+        y: f32,
+        max_width: f32,
+        size: f32,
+        color: Option<&Bound<'_, PyAny>>,
+        line_spacing: f32,
+        font: Option<&Font>,
+    ) -> PyResult<(f32, f32)> {
+        let c = if let Some(c_obj) = color {
+            parse_color(c_obj)?
+        } else {
+            Color::BLACK
+        };
+
+        let resolved_font = if let Some(f) = font {
+            f.clone()
+        } else {
+            Font::get_default()?
+        };
+
+        let mut cur_y = y;
+        let mut max_line_w = 0.0f32;
+
+        for line in text.split('\n') {
+            let words = line.split_whitespace().collect::<Vec<_>>();
+            if words.is_empty() {
+                cur_y += size + line_spacing;
+                continue;
+            }
+
+            let mut cur_line = String::new();
+            for word in words {
+                let test_line = if cur_line.is_empty() {
+                    word.to_string()
+                } else {
+                    format!("{} {}", cur_line, word)
+                };
+
+                let (tw, _) = text::measure_text_dimensions(&resolved_font.inner, &test_line, size);
+                if tw > max_width && !cur_line.is_empty() {
+                    let (lw, _) = text::measure_text_dimensions(&resolved_font.inner, &cur_line, size);
+                    if lw > max_line_w {
+                        max_line_w = lw;
+                    }
+                    text::draw_text_to_pixmap(
+                        &mut self.pixmap,
+                        &resolved_font.inner,
+                        &cur_line,
+                        x,
+                        cur_y,
+                        size,
+                        c,
+                    );
+                    cur_y += size + line_spacing;
+                    cur_line = word.to_string();
+                } else {
+                    cur_line = test_line;
+                }
+            }
+
+            if !cur_line.is_empty() {
+                let (lw, _) = text::measure_text_dimensions(&resolved_font.inner, &cur_line, size);
+                if lw > max_line_w {
+                    max_line_w = lw;
+                }
+                text::draw_text_to_pixmap(
+                    &mut self.pixmap,
+                    &resolved_font.inner,
+                    &cur_line,
+                    x,
+                    cur_y,
+                    size,
+                    c,
+                );
+                cur_y += size + line_spacing;
+            }
+        }
+
+        let total_height = cur_y - y;
+        Ok((max_line_w, total_height))
+    }
+
+    #[pyo3(signature = (text, size=16.0, font=None))]
+    pub fn measure_text(
+        &self,
+        text: &str,
+        size: f32,
+        font: Option<&Font>,
+    ) -> PyResult<(f32, f32)> {
+        let resolved_font = if let Some(f) = font {
+            f.clone()
+        } else {
+            Font::get_default()?
+        };
+        Ok(text::measure_text_dimensions(&resolved_font.inner, text, size))
+    }
+
+    // --- Full SVG Rendering (resvg) ---
+
+    #[pyo3(signature = (svg_content, x=0.0, y=0.0, width=None, height=None))]
+    pub fn draw_svg_document(
+        &mut self,
+        svg_content: &str,
+        x: f32,
+        y: f32,
+        width: Option<f32>,
+        height: Option<f32>,
+    ) -> PyResult<()> {
+        svg_render::render_svg_str(&mut self.pixmap, svg_content, x, y, width, height)
+    }
+
+    #[pyo3(signature = (path, x=0.0, y=0.0, width=None, height=None))]
+    pub fn draw_svg_file(
+        &mut self,
+        path: &str,
+        x: f32,
+        y: f32,
+        width: Option<f32>,
+        height: Option<f32>,
+    ) -> PyResult<()> {
+        svg_render::render_svg_file(&mut self.pixmap, path, x, y, width, height)
+    }
+
+    // --- Basic Drawing Primitives ---
 
     pub fn fill(&mut self, color_obj: &Bound<'_, PyAny>) -> PyResult<()> {
         let color = parse_color(color_obj)?;
@@ -192,8 +573,7 @@ impl Canvas {
         let right = x + width;
         let bottom = y + height;
 
-        // Smooth cubic bezier rounded rectangle
-        let k = 0.552284749831f32; // bezier handle control constant
+        let k = 0.552284749831f32;
         let dx = rx * (1.0 - k);
         let dy = ry * (1.0 - k);
 
@@ -415,8 +795,8 @@ impl Canvas {
             y.round() as i32,
             other.pixmap.as_ref(),
             &paint,
-            Transform::identity(),
-            None,
+            self.transform,
+            self.mask.as_ref(),
         );
         Ok(())
     }
@@ -592,8 +972,8 @@ impl Canvas {
                     path,
                     paint,
                     FillRule::Winding,
-                    Transform::identity(),
-                    None,
+                    self.transform,
+                    self.mask.as_ref(),
                 );
             })?;
         }
@@ -608,8 +988,8 @@ impl Canvas {
                     path,
                     paint,
                     &s,
-                    Transform::identity(),
-                    None,
+                    self.transform,
+                    self.mask.as_ref(),
                 );
             })?;
         }

@@ -1,4 +1,4 @@
-from typing import Any, Tuple, Optional, Sequence, Union
+from typing import Any, Tuple, Optional, Sequence, Union, ContextManager
 import PIL.Image
 import numpy as np
 
@@ -6,6 +6,13 @@ __version__: str
 
 ColorType = Union[str, Tuple[int, int, int], Tuple[int, int, int, int], Tuple[float, float, float], Tuple[float, float, float, float], int]
 PaintType = Union[ColorType, LinearGradient, RadialGradient]
+
+class Font:
+    def __init__(self, data: bytes) -> None: ...
+    @staticmethod
+    def load(path: str) -> Font: ...
+    @staticmethod
+    def default_font() -> Font: ...
 
 class LinearGradient:
     def __init__(
@@ -57,6 +64,99 @@ class Canvas:
     @property
     def size(self) -> Tuple[int, int]: ...
 
+    # Transformations & State
+    def save_state(self) -> None: ...
+    def restore_state(self) -> None: ...
+    def translate(self, tx: float, ty: float) -> None: ...
+    def rotate(self, degrees: float) -> None: ...
+    def scale(self, sx: float, sy: float) -> None: ...
+    def reset_transform(self) -> None: ...
+    def transform_scope(self) -> ContextManager[Canvas]: ...
+
+    # Clipping Masks
+    def clip_path(self, path: Path) -> None: ...
+    def clip_rect(self, x: float, y: float, width: float, height: float) -> None: ...
+    def clip_circle(self, cx: float, cy: float, radius: float) -> None: ...
+    def clip_rounded_rect(self, x: float, y: float, width: float, height: float, rx: float, ry: Optional[float] = None) -> None: ...
+    def reset_clip(self) -> None: ...
+    def clipping_rect(self, x: float, y: float, width: float, height: float) -> ContextManager[Canvas]: ...
+    def clipping_rounded_rect(self, x: float, y: float, width: float, height: float, rx: float, ry: Optional[float] = None) -> ContextManager[Canvas]: ...
+    def clipping_circle(self, cx: float, cy: float, radius: float) -> ContextManager[Canvas]: ...
+
+    # Drop Shadows & Glows
+    def draw_drop_shadow(
+        self,
+        x: float,
+        y: float,
+        width: float,
+        height: float,
+        rx: float = 0.0,
+        ry: Optional[float] = None,
+        blur: float = 10.0,
+        offset_x: float = 0.0,
+        offset_y: float = 4.0,
+        color: Optional[ColorType] = None,
+    ) -> None: ...
+
+    def draw_glow(
+        self,
+        cx: float,
+        cy: float,
+        radius: float,
+        blur: float = 15.0,
+        color: Optional[ColorType] = None,
+    ) -> None: ...
+
+    # Modern Typography
+    def draw_text(
+        self,
+        text: str,
+        x: float,
+        y: float,
+        size: float = 16.0,
+        color: Optional[ColorType] = None,
+        font: Optional[Font] = None,
+    ) -> None: ...
+
+    def draw_text_box(
+        self,
+        text: str,
+        x: float,
+        y: float,
+        max_width: float,
+        size: float = 16.0,
+        color: Optional[ColorType] = None,
+        line_spacing: float = 4.0,
+        font: Optional[Font] = None,
+    ) -> Tuple[float, float]: ...
+
+    def measure_text(
+        self,
+        text: str,
+        size: float = 16.0,
+        font: Optional[Font] = None,
+    ) -> Tuple[float, float]: ...
+
+    # SVG Rendering
+    def draw_svg_document(
+        self,
+        svg_content: str,
+        x: float = 0.0,
+        y: float = 0.0,
+        width: Optional[f32] = None,
+        height: Optional[f32] = None,
+    ) -> None: ...
+
+    def draw_svg_file(
+        self,
+        path: str,
+        x: float = 0.0,
+        y: float = 0.0,
+        width: Optional[float] = None,
+        height: Optional[float] = None,
+    ) -> None: ...
+
+    # Basic Drawing Primitives
     def fill(self, color: ColorType) -> None: ...
     def clear(self) -> None: ...
 
@@ -192,5 +292,12 @@ def batch_blur(
     images: Sequence[Canvas],
     sigma: float,
 ) -> Sequence[Canvas]: ...
+
+def save_gif(
+    frames: Sequence[Canvas],
+    path: str,
+    fps: int = 20,
+    loop_count: int = 0,
+) -> None: ...
 
 def version() -> str: ...

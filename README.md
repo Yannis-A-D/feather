@@ -9,7 +9,7 @@
 
 **Feather** is a high-performance, memory-safe 2D vector graphics and image processing extension for Python, built from the ground up in **Rust**.
 
-Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) rendering engine, Feather provides **flawless subpixel anti-aliasing**, **feathered soft edges**, **SIMD acceleration**, **multi-core batch processing**, and seamless integration with **NumPy** and **Pillow**.
+Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) rendering engine, Feather provides **flawless subpixel anti-aliasing**, **feathered soft edges**, **SIMD acceleration**, **modern typography**, **native drop shadows**, **clipping masks**, **SVG rendering with `resvg`**, **animated GIFs**, and seamless integration with **NumPy** and **Pillow**.
 
 ---
 
@@ -18,6 +18,12 @@ Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) renderi
 | Feature | Pillow (`PIL.ImageDraw`) | Feather |
 | :--- | :--- | :--- |
 | **Anti-Aliasing** | ❌ Jagged, pixelated edges | 🪶 **Flawless subpixel anti-aliasing & soft edges** |
+| **Typography & Text Layout** | ⚠️ Clunky bounds, no word-wrap | 🪶 **Subpixel fontdue engine with automatic word-wrap** |
+| **Drop Shadows & Glows** | ❌ None (requires 15+ lines of blur hacks) | 🪶 **Native 1-line diffused drop shadows & glows** |
+| **Clipping Masks** | ⚠️ Manual `putalpha` masks | 🪶 **Native context managers (`clipping_circle`, etc.)** |
+| **Transformation Matrix** | ⚠️ Limited image-level transforms | 🪶 **State stack: `rotate`, `scale`, `translate`** |
+| **SVG File Rendering** | ❌ None (requires CairoSVG + GTK DLLs) | 🪶 **Built-in pure Rust `resvg` (0 C dependencies)** |
+| **Animated GIF Export** | ⚠️ Slow with color dithering issues | 🪶 **Ultra-fast multi-frame GIF exporter (`save_gif`)** |
 | **Rounded Rectangles** | ⚠️ Basic or broken corner radii | 🪶 **Smooth bezier rounded corners (`rx`, `ry`)** |
 | **Gradients** | ❌ None (requires manual loops) | 🪶 **Linear & Radial Gradients with stops** |
 | **Vector Paths** | ❌ Limited polylines | 🪶 **Quadratic/Cubic Beziers & SVG `d` Paths** |
@@ -45,71 +51,143 @@ maturin develop --release
 
 ## 🎨 Quickstart
 
-### 1. Anti-Aliased Shapes & Gradients
+### 1. Typography & Multi-Line Text Boxes
+
+Feather includes built-in system font fallbacks and subpixel glyph rasterization powered by [`fontdue`](https://github.com/slimsag/fontdue):
+
+```python
+from feather import Canvas, Font
+
+canvas = Canvas(800, 600, background="#11111b")
+
+# Single line text
+canvas.draw_text("⚡ Feather 0.2.0: Typography Engine", 50, 40, size=28, color="#f5c2e7")
+
+# Multiline text box with automatic word wrapping
+long_text = "Feather renders smooth vector graphics with zero C dependencies. Words wrap smoothly and gracefully."
+width, height = canvas.draw_text_box(
+    long_text,
+    x=50, y=100, max_width=350,
+    size=18, color="#cdd6f4", line_spacing=6
+)
+
+# Load any custom TTF or OTF font
+custom_font = Font.load("path/to/custom_font.ttf")
+canvas.draw_text("Custom Font", 50, 200, size=22, font=custom_font)
+```
+
+---
+
+### 2. Native Drop Shadows & Glow Effects
+
+Create buttery-smooth, diffused glassmorphic cards and glowing badges in a single call:
+
+```python
+# Card with soft drop shadow
+canvas.draw_drop_shadow(
+    x=450, y=90, width=300, height=160,
+    rx=18, blur=18.0, offset_x=0.0, offset_y=10.0,
+    color="rgba(0, 0, 0, 0.5)"
+)
+canvas.draw_rounded_rect(450, 90, 300, 160, rx=18, fill="#1e1e2e", stroke="rgba(255, 255, 255, 0.15)", stroke_width=1.5)
+
+# Outer glow effect on badges or buttons
+canvas.draw_glow(cx=520, cy=200, radius=25, blur=20.0, color="rgba(243, 139, 168, 0.7)")
+canvas.draw_circle(520, 200, radius=25, fill="#f38ba8")
+```
+
+---
+
+### 3. Matrix Transformations & Clipping Masks
+
+Crop avatars into circles, rounded rectangles, or rotate vector art effortlessly with Python context managers:
+
+```python
+# Rotate and transform shapes
+with canvas.transform_scope():
+    canvas.translate(150, 420)
+    canvas.rotate(degrees=25)
+    canvas.draw_rect(-40, -40, 80, 80, fill="#a6e3a1")
+
+# Circular avatar clipping mask
+with canvas.clipping_circle(cx=320, cy=420, radius=55):
+    canvas.draw_image(avatar_canvas, 265, 365)  # Automatically clipped to a circle!
+```
+
+---
+
+### 4. Zero-Dependency SVG File Rendering (`resvg`)
+
+Render entire `.svg` vector files or SVG XML strings directly onto your canvas at arbitrary coordinates and dimensions:
+
+```python
+# Render SVG document string or file
+svg_xml = """
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="40" fill="#f38ba8" stroke="#ffffff" stroke-width="4"/>
+</svg>
+"""
+canvas.draw_svg_document(svg_xml, x=100, y=100, width=150, height=150)
+
+# Or directly from a file:
+canvas.draw_svg_file("icons/badge.svg", x=300, y=100, width=150, height=150)
+```
+
+---
+
+### 5. Animated GIF Exporter (`save_gif`)
+
+Render multi-frame animations with custom FPS and looping directly from a list of `Canvas` frames:
+
+```python
+from feather import Canvas, save_gif
+
+frames = []
+for i in range(30):
+    frame = Canvas(400, 400, background="#0f0f17")
+    angle = i * (360 / 30)
+    with frame.transform_scope():
+        frame.translate(200, 200)
+        frame.rotate(angle)
+        frame.draw_rounded_rect(-50, -50, 100, 100, rx=16, fill="#89b4fa")
+    frames.append(frame)
+
+# Save as smooth 30 FPS looping animated GIF
+save_gif(frames, "animation.gif", fps=30, loop_count=0)
+```
+
+---
+
+### 6. Anti-Aliased Shapes & Gradients
 
 ```python
 from feather import Canvas, LinearGradient, RadialGradient
 
-# Create a high-resolution canvas with a dark background
 canvas = Canvas(800, 600, background="#11111b")
 
-# Smooth rounded rectangle with a linear gradient
-grad = LinearGradient(
-    50, 50, 350, 250,
-    stops=[(0.0, "#f38ba8"), (0.5, "#cba6f7"), (1.0, "#89b4fa")]
-)
-canvas.draw_rounded_rect(
-    50, 50, 300, 200,
-    rx=24,
-    fill=grad,
-    stroke="#ffffff",
-    stroke_width=2.5
-)
+# Linear gradient
+grad = LinearGradient(50, 50, 350, 250, stops=[
+    (0.0, "#f38ba8"),
+    (0.5, "#cba6f7"),
+    (1.0, "#89b4fa")
+])
+canvas.draw_rounded_rect(50, 50, 300, 200, rx=24, fill=grad, stroke="#ffffff", stroke_width=2.5)
 
-# Smooth anti-aliased circles
-radial = RadialGradient(
-    550, 200, 100,
-    stops=[(0.0, "#a6e3a1"), (1.0, "rgba(166, 227, 161, 0)")]
-)
-canvas.draw_circle(550, 200, radius=90, fill=radial)
-canvas.draw_circle(550, 200, radius=90, stroke="#94e2d5", stroke_width=3.0)
+# Radial gradient
+radial = RadialGradient(550, 200, 90, stops=[
+    (0.0, "#a6e3a1"),
+    (1.0, "rgba(166, 227, 161, 0)")
+])
+canvas.draw_circle(550, 200, radius=90, fill=radial, stroke="#94e2d5", stroke_width=3.0)
 
-# Save directly to PNG, JPEG, or WebP
 canvas.save("render.png")
 ```
 
 ---
 
-### 2. SVG Paths & Complex Bezier Curves
+### 7. SIMD Resizing & Image Filters
 
 ```python
-from feather import Canvas, Path
-
-canvas = Canvas(400, 400, background="#181825")
-
-# Draw using SVG path syntax directly
-heart_svg = "M 200,100 A 45,45 0 0,0 125,160 Q 125,230 200,300 Q 275,230 275,160 A 45,45 0 0,0 200,100 Z"
-canvas.draw_svg_path(heart_svg, fill="#f38ba8", stroke="#eba0ac", stroke_width=2)
-
-# Or build programmatically with the Path API
-path = Path()
-path.move_to(50, 50)
-path.cubic_to(100, 20, 200, 80, 250, 50)
-path.line_to(250, 150)
-path.close()
-canvas.draw_path(path, stroke="#89dceb", stroke_width=3.0)
-
-canvas.save("paths.png")
-```
-
----
-
-### 3. SIMD Resizing & Image Filters
-
-```python
-from feather import Canvas
-
-# Load an image
 img = Canvas.open("photo.png")
 
 # Ultra-fast SIMD resize (filters: 'bilinear', 'bicubic', 'lanczos3', 'nearest')
@@ -125,25 +203,7 @@ enhanced.save("enhanced.jpg", quality=95)
 
 ---
 
-### 4. Multi-Core Batch Processing
-
-Feather releases the Python GIL during heavy computations, allowing native multithreading across all CPU cores with `rayon`:
-
-```python
-from feather import Canvas, batch_resize, batch_blur
-
-images = [Canvas.open(f"input_{i}.png") for i in range(100)]
-
-# Resizes 100 images in parallel across all CPU cores
-resized_all = batch_resize(images, 512, 512, filter="bilinear")
-
-# Blurs 100 images in parallel
-blurred_all = batch_blur(resized_all, sigma=2.0)
-```
-
----
-
-### 5. Seamless Pillow & NumPy Interop
+### 8. Seamless Pillow & NumPy Interop
 
 ```python
 from PIL import Image
@@ -153,9 +213,6 @@ from feather import Canvas
 # Pillow -> Feather
 pil_img = Image.open("avatar.png")
 canvas = Canvas.from_pillow(pil_img)
-
-# Draw smooth vector overlays
-canvas.draw_circle(100, 100, radius=40, stroke="#00ffcc", stroke_width=4.0)
 
 # Feather -> Pillow
 result_pil = canvas.to_pillow()
@@ -170,6 +227,8 @@ new_canvas = Canvas.from_numpy(np_array)
 ## 🏗 Architecture
 
 - **Rasterizer Engine**: Built on [`tiny-skia`](https://github.com/RazrFalcon/tiny-skia), a pure Rust port of Google's Skia software rasterizer. Features full SIMD optimizations for AVX2, SSE4.1, and ARM Neon.
+- **SVG Engine**: Integrated [`resvg`](https://github.com/RazrFalcon/resvg) for 100% pure Rust, zero-dependency SVG vector document rasterization.
+- **Font Engine**: Powered by [`fontdue`](https://github.com/slimsag/fontdue) for subpixel glyph coverage rasterization and text measurement.
 - **Resampling Pipeline**: Uses [`fast_image_resize`](https://github.com/Cykooz/fast_image_resize) for blazing-fast SIMD image convolutions.
 - **Concurrency**: Work-stealing thread pools powered by [`rayon`](https://github.com/rayon-rs/rayon).
 - **Color Engine**: Parses CSS hex, rgb, rgba, hsl, and named colors via [`csscolorparser`](https://github.com/mazznoer/csscolorparser-rs).

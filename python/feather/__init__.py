@@ -1,9 +1,10 @@
 """
 Feather: High-performance, anti-aliased 2D vector graphics & image processing.
-Powered by Rust, tiny-skia, and fast_image_resize.
+Powered by Rust, tiny-skia, fontdue, and resvg.
 """
 
 from __future__ import annotations
+import contextlib
 import os
 import sys
 
@@ -19,10 +20,12 @@ if sys.platform == "win32":
 from ._feather import (
     Canvas as _NativeCanvas,
     Path,
+    Font,
     LinearGradient,
     RadialGradient,
     batch_resize,
     batch_blur,
+    save_gif,
     version,
 )
 
@@ -38,10 +41,51 @@ class Canvas(_NativeCanvas):
     def __repr__(self) -> str:
         return f"<Feather.Canvas size={self.width}x{self.height}>"
 
+    # --- Pythonic Context Managers for Clipping Masks ---
+
+    @contextlib.contextmanager
+    def clipping_rect(self, x: float, y: float, width: float, height: float):
+        """Context manager that applies a rectangular clip mask and restores it on exit."""
+        self.save_state()
+        self.clip_rect(x, y, width, height)
+        try:
+            yield self
+        finally:
+            self.restore_state()
+
+    @contextlib.contextmanager
+    def clipping_rounded_rect(self, x: float, y: float, width: float, height: float, rx: float, ry: float | None = None):
+        """Context manager that applies a rounded rectangular clip mask and restores it on exit."""
+        self.save_state()
+        self.clip_rounded_rect(x, y, width, height, rx, ry)
+        try:
+            yield self
+        finally:
+            self.restore_state()
+
+    @contextlib.contextmanager
+    def clipping_circle(self, cx: float, cy: float, radius: float):
+        """Context manager that applies a circular clip mask and restores it on exit."""
+        self.save_state()
+        self.clip_circle(cx, cy, radius)
+        try:
+            yield self
+        finally:
+            self.restore_state()
+
+    @contextlib.contextmanager
+    def transform_scope(self):
+        """Context manager that saves current transform matrix and restores it on exit."""
+        self.save_state()
+        try:
+            yield self
+        finally:
+            self.restore_state()
+
+    # --- Interoperability ---
+
     def to_pillow(self):
-        """
-        Convert this canvas to a PIL / Pillow Image instance.
-        """
+        """Convert this canvas to a PIL / Pillow Image instance."""
         try:
             from PIL import Image
         except ImportError as err:
@@ -54,9 +98,7 @@ class Canvas(_NativeCanvas):
 
     @classmethod
     def from_pillow(cls, pil_image) -> Canvas:
-        """
-        Create a Canvas from an existing PIL / Pillow Image.
-        """
+        """Create a Canvas from an existing PIL / Pillow Image."""
         if pil_image.mode != "RGBA":
             pil_image = pil_image.convert("RGBA")
         raw_bytes = pil_image.tobytes()
@@ -64,9 +106,7 @@ class Canvas(_NativeCanvas):
         return cls.from_bytes(w, h, raw_bytes)
 
     def to_numpy(self):
-        """
-        Convert this canvas to a NumPy uint8 RGBA array of shape (height, width, 4).
-        """
+        """Convert this canvas to a NumPy uint8 RGBA array of shape (height, width, 4)."""
         try:
             import numpy as np
         except ImportError as err:
@@ -79,9 +119,7 @@ class Canvas(_NativeCanvas):
 
     @classmethod
     def from_numpy(cls, array) -> Canvas:
-        """
-        Create a Canvas from a NumPy array of shape (height, width, 4) or (height, width, 3).
-        """
+        """Create a Canvas from a NumPy array of shape (H, W, 4) or (H, W, 3)."""
         try:
             import numpy as np
         except ImportError as err:
@@ -97,7 +135,6 @@ class Canvas(_NativeCanvas):
 
         h, w, c = array.shape
         if c == 3:
-            # Convert RGB to RGBA
             alpha = np.full((h, w, 1), 255, dtype=np.uint8)
             array = np.concatenate([array, alpha], axis=-1)
         elif c != 4:
@@ -112,10 +149,12 @@ class Canvas(_NativeCanvas):
 __all__ = [
     "Canvas",
     "Path",
+    "Font",
     "LinearGradient",
     "RadialGradient",
     "batch_resize",
     "batch_blur",
+    "save_gif",
     "version",
     "__version__",
 ]
