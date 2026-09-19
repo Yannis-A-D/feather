@@ -5,6 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![SIMD Accelerated](https://img.shields.io/badge/SIMD-AVX2%20%7C%20SSE4.1%20%7C%20NEON-red.svg)](https://github.com)
 
+🤖 *Note: This README documentation was created by AI.*
+
 **Feather** is a high-performance, memory-safe 2D vector graphics and image processing extension for Python, built from the ground up in **Rust**.
 
 Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) rendering engine, Feather provides **flawless subpixel anti-aliasing**, **feathered soft edges**, **SIMD acceleration**, **multi-core batch processing**, and seamless integration with **NumPy** and **Pillow**.
@@ -177,3 +179,7 @@ new_canvas = Canvas.from_numpy(np_array)
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
+
+---
+
+🤖 *Note: This README documentation was created by AI.*
