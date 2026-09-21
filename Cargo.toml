@@ -1,6 +1,6 @@
 [package]
 name = "feather"
-version = "0.4.2"
+version = "0.4.3"
 edition = "2021"
 authors = ["Feather Contributors"]
 description = "Blazing-fast, anti-aliased 2D vector rendering & image processing extension for Python"

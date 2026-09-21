@@ -23,6 +23,9 @@ Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) renderi
 | :--- | :--- | :--- |
 | **Anti-Aliasing** | ❌ Jagged, pixelated edges | 🪶 **Flawless subpixel anti-aliasing & soft edges** |
 | **Typography & Text Layout** | ⚠️ Clunky bounds, no word-wrap | 🪶 **Subpixel fontdue engine with automatic word-wrap** |
+| **Inline Markdown & Rich Text** | ❌ 1 font/color per call | 🪶 **`draw_markdown`: `**bold**`, `*italic*`, `<color>` tags** |
+| **UI Component Engine** | ❌ None (manual coordinate math) | 🪶 **Auto-layout Cards, Flex Stacks, Badges (`feather.ui`)** |
+| **Multi-Core CLI Tool** | ❌ None | 🪶 **`feather` command for SIMD bulk processing & telemetry** |
 | **Drop Shadows & Glows** | ❌ None (requires 15+ lines of blur hacks) | 🪶 **Native 1-line diffused drop shadows & glows** |
 | **Clipping Masks** | ⚠️ Manual `putalpha` masks | 🪶 **Native context managers (`clipping_circle`, etc.)** |
 | **Transformation Matrix** | ⚠️ Limited image-level transforms | 🪶 **State stack: `rotate`, `scale`, `translate`** |
@@ -391,6 +394,83 @@ canvas = feather.Canvas(500, 300, background="#11111b")
 canvas.draw_circle(250, 150, 80, fill="#89b4fa", stroke="#ffffff", stroke_width=3.0)
 
 canvas  # 🪄 Instantly renders inline via native _repr_png_()!
+```
+
+---
+
+### 14. Modern UI Component & Auto-Layout Engine (`feather.ui`)
+
+Design Figma-grade UI cards, glassmorphic containers, metric badges, and buttons with **automated padding and zero coordinate guesswork**:
+
+<p align="center">
+  <img src="assets/ui_components_preview.png" alt="Feather UI Component Showcase" width="100%" />
+  <br />
+  <em>Auto-layout cards, flexbox stacks, and stat metrics composed with Feather UI (see <code>examples/ui_showcase.py</code>)</em>
+</p>
+
+```python
+from feather import ui
+
+# 🎛️ Compose a modern glassmorphic card with flex stacks
+card = ui.Card(width=360, padding=24, corner_radius=18, background="rgba(255, 255, 255, 0.04)")
+
+# Header row with status pills
+header = ui.Row(gap=10)
+header.add(ui.Badge("PRO CLOUD", color="#a6e3a1"))
+header.add(ui.Badge("POPULAR", color="#cba6f7", dot=False))
+card.add(header)
+
+card.add(ui.Text("# $49 / month", size=24, color="#ffffff"))
+card.add(ui.Metric("1,650 FPS", label="SIMD Render Rate", trend="+420% vs Pillow"))
+card.add(ui.Divider())
+card.add(ui.Text("- **Unlimited** vector raster passes\n- Full `resvg` SVG support\n- <color=#a6e3a1>60 FPS</color> live viewer"))
+card.add(ui.Button("Upgrade to Pro", background=("#89b4fa", "#cba6f7"), corner_radius=10))
+
+# Render onto canvas or export directly
+canvas = card.render_to_canvas()
+canvas.save("pricing_card.png")
+```
+
+---
+
+### 15. Inline Markdown & Rich Typography (`canvas.draw_markdown`)
+
+Render multi-style text strings in a single call without manual cursor math or multiple font calls:
+
+```python
+canvas.draw_markdown(
+    "# Feather 0.4.3\n"
+    "- Built with **Rust** and `tiny-skia` for maximum speed.\n"
+    "- Flawless <color=#89b4fa>subpixel anti-aliasing</color> & *soft edges*.\n"
+    "- Automatic line wrapping and baseline alignment.",
+    x=40, y=60, max_width=500, size=15.0
+)
+```
+
+---
+
+### 16. Multi-Core CLI Tool (`feather`)
+
+Installed directly with `pip install feather-render`, the `feather` command line tool provides instant SIMD image processing and telemetry right from your terminal:
+
+```bash
+# 🔍 Inspect image resolution, color memory, and aspect ratio
+feather info screenshot.png
+
+# ⚡ SIMD-accelerated image resize (AVX2 / NEON)
+feather resize input.png --width 1920 --filter lanczos3 -o output.png
+
+# 📦 Fast format conversion (WebP, PNG, JPEG, BMP)
+feather convert hero.png -o hero.webp --quality 85
+
+# 💧 Multi-threaded Rayon Gaussian Blur
+feather blur background.png --sigma 8.0 -o blurred.png
+
+# 🖥️ Open 60 FPS interactive desktop window with live pixel loupe
+feather view photo.png
+
+# 🚀 Run live hardware SIMD engine benchmark
+feather benchmark
 ```
 
 ---

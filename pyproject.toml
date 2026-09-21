@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "feather-render"
-version = "0.4.2"
+version = "0.4.3"
 description = "Blazing-fast, anti-aliased 2D vector rendering & image processing extension for Python"
 readme = "README.md"
 authors = [{ name = "Feather Contributors" }]
@@ -24,6 +24,9 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Image Processing",
 ]
 dependencies = []
+
+[project.scripts]
+feather = "feather.cli:main"
 
 [project.optional-dependencies]
 dev = [

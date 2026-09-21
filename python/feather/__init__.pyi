@@ -2,6 +2,7 @@ from typing import Any, Tuple, Optional, Sequence, Union, ContextManager
 import PIL.Image
 import numpy as np
 from . import charts as charts
+from . import ui as ui
 
 __version__: str
 
@@ -258,6 +259,18 @@ class Canvas:
         stroke: Optional[PaintType] = None,
         stroke_width: float = 1.0,
     ) -> None: ...
+
+    def draw_markdown(
+        self,
+        text: str,
+        x: float,
+        y: float,
+        max_width: Optional[float] = None,
+        size: float = 16.0,
+        default_color: str = "#cdd6f4",
+        line_spacing: float = 6.0,
+        font: Optional[Font] = None,
+    ) -> Tuple[float, float]: ...
 
     def draw_image(
         self,

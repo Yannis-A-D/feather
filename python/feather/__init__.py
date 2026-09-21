@@ -87,6 +87,35 @@ class Canvas(_NativeCanvas):
                 except OSError:
                     pass
 
+    def draw_markdown(
+        self,
+        text: str,
+        x: float,
+        y: float,
+        max_width: float | None = None,
+        size: float = 16.0,
+        default_color: str = "#cdd6f4",
+        line_spacing: float = 6.0,
+        font: Font | None = None,
+    ) -> tuple[float, float]:
+        """
+        Render inline Markdown text (**bold**, *italic*, `code`, <color=...>)
+        with automatic word wrapping and subpixel baseline alignment.
+        Returns (consumed_width, consumed_height).
+        """
+        from .markdown import render_markdown
+        return render_markdown(
+            self,
+            text,
+            x,
+            y,
+            max_width=max_width,
+            size=size,
+            default_color=default_color,
+            line_spacing=line_spacing,
+            font=font,
+        )
+
     # --- Pythonic Context Managers for Clipping Masks ---
 
     @contextlib.contextmanager
@@ -193,6 +222,7 @@ class Canvas(_NativeCanvas):
 
 
 from . import charts
+from . import ui
 
 __all__ = [
     "Canvas",
@@ -209,6 +239,7 @@ __all__ = [
     "show_interactive",
     "show_window",
     "charts",
+    "ui",
     "version",
     "__version__",
 ]
