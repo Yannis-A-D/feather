@@ -9,12 +9,13 @@ mod shadow;
 mod svg_render;
 mod text;
 mod transform;
+mod viewer;
 
 use pyo3::prelude::*;
 
 #[pyfunction]
 fn version() -> &'static str {
-    "0.3.0"
+    "0.4.0"
 }
 
 #[pymodule]
@@ -26,6 +27,7 @@ fn _feather(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(animation::save_apng, m)?)?;
     m.add_function(wrap_pyfunction!(animation::save_webp, m)?)?;
     m.add_function(wrap_pyfunction!(animation::save_animation, m)?)?;
+    m.add_function(wrap_pyfunction!(viewer::show_interactive, m)?)?;
     m.add_class::<canvas::Canvas>()?;
     m.add_class::<path::Path>()?;
     m.add_class::<text::Font>()?;

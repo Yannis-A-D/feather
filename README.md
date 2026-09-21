@@ -23,7 +23,8 @@ Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) renderi
 | **Clipping Masks** | ⚠️ Manual `putalpha` masks | 🪶 **Native context managers (`clipping_circle`, etc.)** |
 | **Transformation Matrix** | ⚠️ Limited image-level transforms | 🪶 **State stack: `rotate`, `scale`, `translate`** |
 | **SVG File Rendering** | ❌ None (requires CairoSVG + GTK DLLs) | 🪶 **Built-in pure Rust `resvg` (0 C dependencies)** |
-| **Animated GIF Export** | ⚠️ Slow with color dithering issues | 🪶 **Ultra-fast multi-frame GIF exporter (`save_gif`)** |
+| **Live Interactive Viewer** | ❌ None (only slow external Photo Viewer) | 🪶 **60 FPS desktop window with pan, zoom, & live pixel loupe** |
+| **Modern Animation (WebP/APNG)** | ❌ Poor/None | 🪶 **68% smaller WebP & 32-bit lossless APNG** |
 | **Rounded Rectangles** | ⚠️ Basic or broken corner radii | 🪶 **Smooth bezier rounded corners (`rx`, `ry`)** |
 | **Gradients** | ❌ None (requires manual loops) | 🪶 **Linear & Radial Gradients with stops** |
 | **Vector Paths** | ❌ Limited polylines | 🪶 **Quadratic/Cubic Beziers & SVG `d` Paths** |
@@ -40,7 +41,7 @@ Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) renderi
 Anyone on Windows can install Feather instantly using the pre-built standalone wheel:
 ```bash
 # Install directly from the repository's releases folder:
-pip install releases/feather_render-0.3.0-cp310-abi3-win_amd64.whl
+pip install releases/feather_render-0.4.0-cp310-abi3-win_amd64.whl
 ```
 *(Multi-platform wheels for Linux, macOS, and Windows are also automatically built and downloadable from the GitHub Releases tab).*
 
@@ -185,7 +186,35 @@ save_animation(frames, "animation.webp", fps=30)
 
 ---
 
-### 6. Anti-Aliased Shapes & Gradients
+### 6. Instant Live Interactive Window (`canvas.show()`, `show_interactive()`)
+
+Instead of Pillow's `image.show()` that dumps a temporary BMP to Windows Photo Viewer, Feather boots a **native 60 FPS desktop window**:
+
+```python
+from feather import Canvas, show_interactive
+
+canvas = Canvas(1000, 700, background="#161922")
+# ... draw anything ...
+
+# 🖥️ Open instant interactive desktop viewer
+canvas.show(title="My CAD Blueprint")
+
+# 🎬 Or play multi-frame animations in real-time
+show_interactive(frames, title="Signal Flow Simulation", fps=30)
+```
+
+**Interactive Controls**:
+- 🔍 **Smooth Zoom**: Scroll mouse wheel centered directly at your cursor.
+- 🖐️ **Pan**: Click and drag with left mouse button anywhere across the canvas.
+- 🎯 **Pixel Inspector**: Hover over any pixel to see exact `(X, Y)` coordinates and Hex/RGBA color live in the title bar HUD.
+- ⏯️ **Playback**: Press `Space` to Pause/Play, `Left`/`Right` arrow keys to step through animation frames.
+- 🔄 **Reset View**: Press `R` to re-center and fit to window.
+- 📸 **Instant Snapshot**: Press `S` to save the current frame as a PNG.
+- ❌ **Exit**: Press `Esc` or `Q`.
+
+---
+
+### 7. Anti-Aliased Shapes & Gradients
 
 ```python
 from feather import Canvas, LinearGradient, RadialGradient

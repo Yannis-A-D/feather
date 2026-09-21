@@ -29,10 +29,37 @@ from ._feather import (
     save_apng,
     save_webp,
     save_animation,
+    show_interactive as _native_show_interactive,
     version,
 )
 
 __version__ = version()
+
+
+def show_interactive(
+    frames: Canvas | list[Canvas] | tuple[Canvas, ...],
+    title: str = "Feather Viewer",
+    window_width: int | None = None,
+    window_height: int | None = None,
+    fps: int = 30,
+) -> None:
+    """
+    Open a blazing-fast native interactive window to view a Canvas or animated sequence.
+    Features:
+      - Interactive Pan: Click and drag with left mouse button
+      - Infinite Zoom: Scroll wheel centered at cursor
+      - Pixel Inspector: Live (X, Y) and RGBA/Hex color HUD on hover
+      - Playback Controls: Space to Pause/Play, Left/Right arrow keys to step
+      - Reset View: Press 'R' to re-center and fit to window
+      - Instant Snapshot: Press 'S' to save current view to PNG
+      - Close: Press Esc or Q
+    """
+    if isinstance(frames, _NativeCanvas):
+        frames = [frames]
+    _native_show_interactive(list(frames), title, window_width, window_height, fps)
+
+
+show_window = show_interactive
 
 
 class Canvas(_NativeCanvas):
@@ -161,6 +188,8 @@ __all__ = [
     "save_apng",
     "save_webp",
     "save_animation",
+    "show_interactive",
+    "show_window",
     "version",
     "__version__",
 ]

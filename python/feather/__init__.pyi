@@ -73,6 +73,14 @@ class Canvas:
     def reset_transform(self) -> None: ...
     def transform_scope(self) -> ContextManager[Canvas]: ...
 
+    # Interactive Viewer
+    def show(
+        self,
+        title: Optional[str] = None,
+        window_width: Optional[int] = None,
+        window_height: Optional[int] = None,
+    ) -> None: ...
+
     # Clipping Masks
     def clip_path(self, path: Path) -> None: ...
     def clip_rect(self, x: float, y: float, width: float, height: float) -> None: ...
@@ -323,6 +331,22 @@ def save_animation(
     loop_count: int = 0,
     quality: Optional[float] = None,
     lossless: bool = True,
+) -> None: ...
+
+def show_interactive(
+    frames: Union[Canvas, Sequence[Canvas]],
+    title: str = "Feather Viewer",
+    window_width: Optional[int] = None,
+    window_height: Optional[int] = None,
+    fps: int = 30,
+) -> None: ...
+
+def show_window(
+    frames: Union[Canvas, Sequence[Canvas]],
+    title: str = "Feather Viewer",
+    window_width: Optional[int] = None,
+    window_height: Optional[int] = None,
+    fps: int = 30,
 ) -> None: ...
 
 def version() -> str: ...

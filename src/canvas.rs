@@ -954,6 +954,17 @@ impl Canvas {
     pub fn clone_canvas(&self) -> Canvas {
         self.clone()
     }
+
+    #[pyo3(signature = (title=None, window_width=None, window_height=None))]
+    pub fn show(
+        &self,
+        title: Option<&str>,
+        window_width: Option<usize>,
+        window_height: Option<usize>,
+    ) -> PyResult<()> {
+        let t = title.unwrap_or("Feather Viewer");
+        crate::viewer::show_interactive(vec![self.clone()], t, window_width, window_height, 30)
+    }
 }
 
 impl Canvas {
