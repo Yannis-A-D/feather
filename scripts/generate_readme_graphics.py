@@ -144,7 +144,8 @@ def generate_all_assets():
     side_by_side_src = os.path.join(root_dir, "outputs", "side_by_side.png")
     if os.path.exists(side_by_side_src):
         shutil.copyfile(side_by_side_src, os.path.join(assets_dir, "side_by_side.png"))
-        print("   [OK] Copied side_by_side.png")
+        shutil.copyfile(side_by_side_src, os.path.join(assets_dir, "comparison_feather_vs_pillow.png"))
+        print("   [OK] Copied side_by_side.png & comparison_feather_vs_pillow.png")
 
     # =========================================================================
     # 4. ANIMATED SHOWCASE GIF (400 x 300, 30 frames)

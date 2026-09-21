@@ -41,8 +41,16 @@ def run_showcase():
     # 3. Glassmorphic card 2: SVG Paths & Custom Polygons
     canvas.draw_rounded_rect(530, 130, 420, 240, rx=20, fill="rgba(255, 255, 255, 0.05)", stroke="rgba(255, 255, 255, 0.15)", stroke_width=1.5)
     
-    # Heart SVG
-    heart_svg = "M 740,200 A 35,35 0 0,0 680,245 Q 680,290 740,335 Q 800,290 800,245 A 35,35 0 0,0 740,200 Z"
+    # Heart SVG (Smooth cubic Bézier curves)
+    heart_svg = (
+        "M 740 220 "
+        "C 740 195, 715 180, 690 180 "
+        "C 662 180, 645 203, 645 235 "
+        "C 645 275, 685 305, 740 340 "
+        "C 795 305, 835 275, 835 235 "
+        "C 835 203, 818 180, 790 180 "
+        "C 765 180, 740 195, 740 220 Z"
+    )
     canvas.draw_svg_path(heart_svg, fill="#f38ba8", stroke="#eba0ac", stroke_width=2.5)
 
     # 4. Star Polygon

@@ -38,7 +38,7 @@ Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) renderi
 | **NumPy / Pillow Bridge** | ⚠️ Slow conversions | 🪶 **Direct zero-copy buffer interop** |
 
 <p align="center">
-  <img src="assets/side_by_side.png" alt="Pillow vs Feather Subpixel Anti-Aliasing" width="95%" />
+  <img src="assets/comparison_feather_vs_pillow.png" alt="Pillow vs Feather Subpixel Anti-Aliasing" width="95%" />
   <br />
   <em>Left: Pillow (jagged, staircase aliasing) &nbsp;•&nbsp; Right: Feather (smooth subpixel anti-aliasing with radial gradients & bezier curves)</em>
 </p>
