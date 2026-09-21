@@ -5,6 +5,10 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![SIMD Accelerated](https://img.shields.io/badge/SIMD-AVX2%20%7C%20SSE4.1%20%7C%20NEON-red.svg)](https://github.com)
 
+<p align="center">
+  <img src="assets/hero_banner.png" alt="Feather Banner" width="100%" />
+</p>
+
 🤖 *Note: This README documentation was created by AI.*
 
 **Feather** is a high-performance, memory-safe 2D vector graphics and image processing extension for Python, built from the ground up in **Rust**.
@@ -32,6 +36,12 @@ Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) renderi
 | **Image Resizing** | ⚠️ Standard CPU resampling | 🪶 **SIMD-accelerated (AVX2/SSE4.1)** |
 | **Blend Modes** | ⚠️ Basic alpha compositing | 🪶 **24+ Blend Modes (Multiply, Screen, etc.)** |
 | **NumPy / Pillow Bridge** | ⚠️ Slow conversions | 🪶 **Direct zero-copy buffer interop** |
+
+<p align="center">
+  <img src="assets/side_by_side.png" alt="Pillow vs Feather Subpixel Anti-Aliasing" width="95%" />
+  <br />
+  <em>Left: Pillow (jagged, staircase aliasing) &nbsp;•&nbsp; Right: Feather (smooth subpixel anti-aliasing with radial gradients & bezier curves)</em>
+</p>
 
 ---
 
@@ -184,11 +194,21 @@ save_animation(frames, "animation.webp", fps=30)
 | **APNG** | 32-bit Truecolor | ✅ Full 8-bit Alpha | Lossless Truecolor | Discord, Apple, High-DPI |
 | **GIF** | 8-bit (256 colors) | ❌ 1-bit Binary Only | Larger file size | Legacy fallback |
 
+<p align="center">
+  <img src="assets/animated_radar.gif" alt="Feather Animated Radar Demo" width="480" />
+  <br />
+  <em>Live 30 FPS multi-frame animation rendered directly with Feather</em>
+</p>
+
 ---
 
 ### 6. Instant Live Interactive Window (`canvas.show()`, `show_interactive()`)
 
 Instead of Pillow's `image.show()` that dumps a temporary BMP to Windows Photo Viewer, Feather boots a **native 60 FPS desktop window**:
+
+<p align="center">
+  <img src="assets/interactive_preview.png" alt="Feather Interactive Desktop Viewer" width="90%" />
+</p>
 
 ```python
 from feather import Canvas, show_interactive
@@ -214,7 +234,19 @@ show_interactive(frames, title="Signal Flow Simulation", fps=30)
 
 ---
 
-### 7. Anti-Aliased Shapes & Gradients
+### 7. CAD & Electronic Schematic Rendering
+
+Feather's subpixel anti-aliased vectors, transform matrix instancing, and SVG path parsing make it exceptionally suited for rendering high-precision CAD diagrams and electronic schematics without external software:
+
+<p align="center">
+  <img src="assets/schematic_demo.png" alt="Feather CAD Circuit Schematic" width="95%" />
+  <br />
+  <em>Complete Op-Amp schematic rendered with Feather (see <code>examples/schematic_demo.py</code>)</em>
+</p>
+
+---
+
+### 8. Anti-Aliased Shapes & Gradients
 
 ```python
 from feather import Canvas, LinearGradient, RadialGradient
@@ -241,7 +273,7 @@ canvas.save("render.png")
 
 ---
 
-### 7. SIMD Resizing & Image Filters
+### 9. SIMD Resizing & Image Filters
 
 ```python
 img = Canvas.open("photo.png")
@@ -259,7 +291,7 @@ enhanced.save("enhanced.jpg", quality=95)
 
 ---
 
-### 8. Seamless Pillow & NumPy Interop
+### 10. Seamless Pillow & NumPy Interop
 
 ```python
 from PIL import Image

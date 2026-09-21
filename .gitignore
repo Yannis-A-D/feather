@@ -34,3 +34,4 @@ schematic_output.png
 *.gif
 *.webp
 *.apng
+!assets/*
