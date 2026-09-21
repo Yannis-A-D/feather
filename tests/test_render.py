@@ -55,9 +55,17 @@ def generate_visual_comparison():
     lin_grad = LinearGradient(50, 350, 300, 520, stops=[(0.0, "#a6e3a1"), (1.0, "#94e2d5")])
     pf_canvas.draw_rounded_rect(50, 350, 250, 170, rx=24, fill=lin_grad, stroke="#f5e0dc", stroke_width=3.0)
 
-    # SVG Heart path
-    heart = "M 450,400 A 30,30 0 0,0 400,440 Q 400,480 450,520 Q 500,480 500,440 A 30,30 0 0,0 450,400 Z"
-    pf_canvas.draw_svg_path(heart, fill="#f38ba8", stroke="#f5c2e7", stroke_width=2.0)
+    # Smooth, beautifully curved SVG Heart path
+    heart = (
+        "M 460 415 "
+        "C 460 390, 435 375, 410 375 "
+        "C 382 375, 365 398, 365 430 "
+        "C 365 470, 405 500, 460 535 "
+        "C 515 500, 555 470, 555 430 "
+        "C 555 398, 538 375, 510 375 "
+        "C 485 375, 460 390, 460 415 Z"
+    )
+    pf_canvas.draw_svg_path(heart, fill="#f38ba8", stroke="#f5c2e7", stroke_width=2.5)
 
     pf_path = os.path.join(output_dir, "comparison_feather.png")
     pf_canvas.save(pf_path)
