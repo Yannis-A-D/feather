@@ -1,6 +1,6 @@
 [package]
 name = "feather"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 authors = ["Feather Contributors"]
 description = "Blazing-fast, anti-aliased 2D vector rendering & image processing extension for Python"
@@ -22,6 +22,9 @@ svgtypes = "0.15"
 fontdue = "0.9"
 resvg = "0.44"
 usvg = "0.44"
+apng = "0.3.4"
+png = "0.17"
+webp-animation = "0.9"
 
 [profile.release]
 opt-level = 3

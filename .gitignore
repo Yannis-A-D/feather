@@ -30,3 +30,7 @@ ENV/
 # Output artifacts
 outputs/
 benchmark_results/
+schematic_output.png
+*.gif
+*.webp
+*.apng

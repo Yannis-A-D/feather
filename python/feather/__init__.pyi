@@ -300,4 +300,29 @@ def save_gif(
     loop_count: int = 0,
 ) -> None: ...
 
+def save_apng(
+    frames: Sequence[Canvas],
+    path: str,
+    fps: int = 20,
+    loop_count: int = 0,
+) -> None: ...
+
+def save_webp(
+    frames: Sequence[Canvas],
+    path: str,
+    fps: int = 20,
+    loop_count: int = 0,
+    quality: Optional[float] = None,
+    lossless: bool = True,
+) -> None: ...
+
+def save_animation(
+    frames: Sequence[Canvas],
+    path: str,
+    fps: int = 20,
+    loop_count: int = 0,
+    quality: Optional[float] = None,
+    lossless: bool = True,
+) -> None: ...
+
 def version() -> str: ...

@@ -26,6 +26,9 @@ from ._feather import (
     batch_resize,
     batch_blur,
     save_gif,
+    save_apng,
+    save_webp,
+    save_animation,
     version,
 )
 
@@ -155,6 +158,9 @@ __all__ = [
     "batch_resize",
     "batch_blur",
     "save_gif",
+    "save_apng",
+    "save_webp",
+    "save_animation",
     "version",
     "__version__",
 ]

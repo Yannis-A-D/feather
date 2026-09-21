@@ -40,7 +40,7 @@ Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) renderi
 Anyone on Windows can install Feather instantly using the pre-built standalone wheel:
 ```bash
 # Install directly from the repository's releases folder:
-pip install releases/feather_render-0.2.0-cp310-abi3-win_amd64.whl
+pip install releases/feather_render-0.3.0-cp310-abi3-win_amd64.whl
 ```
 *(Multi-platform wheels for Linux, macOS, and Windows are also automatically built and downloadable from the GitHub Releases tab).*
 
@@ -150,12 +150,12 @@ canvas.draw_svg_file("icons/badge.svg", x=300, y=100, width=150, height=150)
 
 ---
 
-### 5. Animated GIF Exporter (`save_gif`)
+### 5. Modern Animation Exporter (`save_webp`, `save_apng`, `save_animation`)
 
-Render multi-frame animations with custom FPS and looping directly from a list of `Canvas` frames:
+Render high-framerate multi-frame animations with full **32-bit RGBA alpha transparency** and up to **70% smaller file size** than GIF!
 
 ```python
-from feather import Canvas, save_gif
+from feather import Canvas, save_animation, save_webp, save_apng, save_gif
 
 frames = []
 for i in range(30):
@@ -167,9 +167,21 @@ for i in range(30):
         frame.draw_rounded_rect(-50, -50, 100, 100, rx=16, fill="#89b4fa")
     frames.append(frame)
 
-# Save as smooth 30 FPS looping animated GIF
-save_gif(frames, "animation.gif", fps=30, loop_count=0)
+# 🌐 Animated WebP (68% smaller than GIF, full 32-bit truecolor & alpha!)
+save_webp(frames, "animation.webp", fps=30, loop_count=0, lossless=True)
+
+# 🖼️ Animated PNG / APNG (lossless 32-bit RGBA for Discord/browsers)
+save_apng(frames, "animation.png", fps=30, loop_count=0)
+
+# 🔄 Unified Auto-Detection (detects .webp, .apng, .png, .gif automatically)
+save_animation(frames, "animation.webp", fps=30)
 ```
+
+| Format | Color Depth | Alpha Transparency | Compression | Best For |
+| :--- | :--- | :--- | :--- | :--- |
+| **WebP** | 32-bit Truecolor | ✅ Full 8-bit Alpha | **~68% smaller than GIF** | Web, Modern Apps |
+| **APNG** | 32-bit Truecolor | ✅ Full 8-bit Alpha | Lossless Truecolor | Discord, Apple, High-DPI |
+| **GIF** | 8-bit (256 colors) | ❌ 1-bit Binary Only | Larger file size | Legacy fallback |
 
 ---
 
