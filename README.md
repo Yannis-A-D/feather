@@ -47,31 +47,36 @@ Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) renderi
 
 ## 📦 Installation
 
-### Option 1: Pre-built Binary Wheel (No Rust or Compilers Needed)
-Anyone on Windows can install Feather instantly using the pre-built standalone wheel:
-```bash
-# Install directly from the repository's releases folder:
-pip install releases/feather_render-0.4.0-cp310-abi3-win_amd64.whl
-```
-*(Multi-platform wheels for Linux, macOS, and Windows are also automatically built and downloadable from the GitHub Releases tab).*
+Install Feather directly from PyPI (pre-compiled standalone wheels available for Windows, Linux, and macOS):
 
-### Option 2: Direct from GitHub via pip
-```bash
-pip install git+https://github.com/yourusername/feather.git
-```
-
-### Option 3: From PyPI
 ```bash
 pip install feather-render
 ```
 
+<details>
+<summary><b>Alternative Installation Methods (Local Wheel / GitHub / Build from Source)</b></summary>
+
+### Option 2: Pre-built Binary Wheel (Offline / Releases)
+```bash
+# Install directly from the repository releases:
+pip install releases/feather_render-0.4.0-cp310-abi3-win_amd64.whl
+```
+*(Multi-platform wheels for Linux, macOS Apple Silicon/Intel, and Windows are also downloadable from the [GitHub Releases](https://github.com/Yannis-A-D/feather/releases) tab).*
+
+### Option 3: Direct from GitHub via pip
+```bash
+pip install git+https://github.com/Yannis-A-D/feather.git
+```
+
 ### Option 4: Build from Source
 ```bash
-git clone https://github.com/yourusername/feather.git
+git clone https://github.com/Yannis-A-D/feather.git
 cd feather
 pip install maturin
 maturin develop --release
 ```
+
+</details>
 
 ---
 
