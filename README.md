@@ -27,6 +27,8 @@ Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) renderi
 | **Clipping Masks** | ⚠️ Manual `putalpha` masks | 🪶 **Native context managers (`clipping_circle`, etc.)** |
 | **Transformation Matrix** | ⚠️ Limited image-level transforms | 🪶 **State stack: `rotate`, `scale`, `translate`** |
 | **SVG File Rendering** | ❌ None (requires CairoSVG + GTK DLLs) | 🪶 **Built-in pure Rust `resvg` (0 C dependencies)** |
+| **Built-in Modern Charts** | ❌ None (requires heavy Matplotlib) | 🪶 **Zero-dependency Area, Bar, Donut, Radar, & Gauges (`feather.charts`)** |
+| **Jupyter Notebook Display** | ⚠️ Clunky boilerplate | 🪶 **Native `_repr_png_()` instant cell rendering** |
 | **Live Interactive Viewer** | ❌ None (only slow external Photo Viewer) | 🪶 **60 FPS desktop window with pan, zoom, & live pixel loupe** |
 | **Modern Animation (WebP/APNG)** | ❌ Poor/None | 🪶 **68% smaller WebP & 32-bit lossless APNG** |
 | **Rounded Rectangles** | ⚠️ Basic or broken corner radii | 🪶 **Smooth bezier rounded corners (`rx`, `ry`)** |
@@ -313,6 +315,82 @@ result_pil = canvas.to_pillow()
 # Feather <-> NumPy
 np_array = canvas.to_numpy()  # uint8 shape (H, W, 4)
 new_canvas = Canvas.from_numpy(np_array)
+```
+
+---
+
+### 11. Built-in Modern Charting & Infographics (`feather.charts`)
+
+Generate publication-grade, beautifully anti-aliased data visualizations with **zero external dependencies** (no Matplotlib or Seaborn needed):
+
+<p align="center">
+  <img src="assets/charts_dashboard.png" alt="Feather Charts Showcase Dashboard" width="100%" />
+  <br />
+  <em>Executive analytics dashboard featuring AreaChart, BarChart, DonutChart, and RadarChart (see <code>examples/charts_showcase.py</code>)</em>
+</p>
+
+```python
+from feather import charts
+
+# 📈 1. Smooth Bézier Area Chart with Gradient Fill
+area = charts.AreaChart(width=800, height=380, title="System Telemetry", theme="dark", smooth=True)
+area.set_x_labels(["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"])
+area.add_series("Inbound (MB/s)", [120, 240, 480, 890, 720, 950], color="#89b4fa")
+area.add_series("Outbound (MB/s)", [60, 110, 230, 410, 350, 520], color="#a6e3a1")
+area.render().save("network_throughput.png")
+
+# 📊 2. Pill-Capped Multi-Series Bar Chart
+bar = charts.BarChart(width=600, height=380, title="Engine Benchmarks", theme="dark", corner_radius=6.0)
+bar.set_categories(["Lines", "Curves", "Circles", "SVG"])
+bar.add_series("Feather", [1420, 980, 1650, 820], color="#89b4fa")
+bar.add_series("Pillow", [310, 180, 420, 120], color="#f38ba8")
+bar.render().save("benchmarks.png")
+
+# 🍩 3. Precision Donut & Gauge Meters
+donut = charts.DonutChart(width=500, height=420, title="Resource Allocation", cutout_ratio=0.65, center_text="4.2 GB")
+donut.add_slice("VRAM", 48.0, color="#89b4fa")
+donut.add_slice("Glyphs", 24.0, color="#cba6f7")
+donut.add_slice("Threads", 16.0, color="#a6e3a1")
+donut.render().save("donut.png")
+
+# 🎯 4. Multi-Variable Spider / Radar Chart
+radar = charts.RadarChart(width=500, height=450, title="Engine Profile", theme="dark")
+radar.set_axes(["Anti-Aliasing", "SIMD", "Concurrency", "Filters", "Formats"])
+radar.add_series("Feather", [98, 95, 92, 88, 94], color="#94e2d5")
+radar.render().save("radar.png")
+```
+
+---
+
+### 12. Generative Art & Precision Architectural CAD
+
+Feather's subpixel anti-aliasing renders hundreds of overlapping transparent curves and microscopic vector details with effortless optical fidelity:
+
+<p align="center">
+  <img src="assets/generative_waveform.png" alt="Feather Generative Harmonic Art" width="100%" />
+  <br />
+  <em>120 overlapping harmonic splines rendered with subpixel transparency in 14 ms (see <code>examples/generative_art.py</code>)</em>
+</p>
+
+<p align="center">
+  <img src="assets/blueprint_demo.png" alt="Feather Architectural CAD Blueprint" width="100%" />
+  <br />
+  <em>Precision architectural floorplan with dimension arrows, door swing arcs, and drafting title blocks (see <code>examples/blueprint_demo.py</code>)</em>
+</p>
+
+---
+
+### 13. Native Jupyter Notebook & Google Colab Display
+
+Feather canvases automatically display inline in Jupyter Notebooks, Google Colab, and VS Code Interactive Python with **zero boilerplate**:
+
+```python
+import feather
+
+canvas = feather.Canvas(500, 300, background="#11111b")
+canvas.draw_circle(250, 150, 80, fill="#89b4fa", stroke="#ffffff", stroke_width=3.0)
+
+canvas  # 🪄 Instantly renders inline via native _repr_png_()!
 ```
 
 ---

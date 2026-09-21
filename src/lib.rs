@@ -15,7 +15,7 @@ use pyo3::prelude::*;
 
 #[pyfunction]
 fn version() -> &'static str {
-    "0.4.1"
+    "0.4.2"
 }
 
 #[pymodule]

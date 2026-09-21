@@ -1,6 +1,7 @@
 from typing import Any, Tuple, Optional, Sequence, Union, ContextManager
 import PIL.Image
 import numpy as np
+from . import charts as charts
 
 __version__: str
 
@@ -288,6 +289,7 @@ class Canvas:
     def to_numpy(self) -> np.ndarray: ...
     @classmethod
     def from_numpy(cls, array: np.ndarray) -> Canvas: ...
+    def _repr_png_(self) -> bytes: ...
 
 def batch_resize(
     images: Sequence[Canvas],

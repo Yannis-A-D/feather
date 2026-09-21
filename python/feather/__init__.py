@@ -71,6 +71,22 @@ class Canvas(_NativeCanvas):
     def __repr__(self) -> str:
         return f"<Feather.Canvas size={self.width}x{self.height}>"
 
+    def _repr_png_(self) -> bytes:
+        """IPython / Jupyter Notebook rich display hook. Renders PNG bytes automatically."""
+        import tempfile
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            temp_path = f.name
+        try:
+            self.save(temp_path)
+            with open(temp_path, "rb") as f:
+                return f.read()
+        finally:
+            if os.path.exists(temp_path):
+                try:
+                    os.remove(temp_path)
+                except OSError:
+                    pass
+
     # --- Pythonic Context Managers for Clipping Masks ---
 
     @contextlib.contextmanager
@@ -176,6 +192,8 @@ class Canvas(_NativeCanvas):
         return cls.from_bytes(w, h, array.tobytes())
 
 
+from . import charts
+
 __all__ = [
     "Canvas",
     "Path",
@@ -190,6 +208,7 @@ __all__ = [
     "save_animation",
     "show_interactive",
     "show_window",
+    "charts",
     "version",
     "__version__",
 ]
