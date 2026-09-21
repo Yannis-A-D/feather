@@ -324,7 +324,7 @@ new_canvas = Canvas.from_numpy(np_array)
 Generate publication-grade, beautifully anti-aliased data visualizations with **zero external dependencies** (no Matplotlib or Seaborn needed):
 
 <p align="center">
-  <img src="assets/charts_dashboard.png" alt="Feather Charts Showcase Dashboard" width="100%" />
+  <img src="assets/charts_preview.png" alt="Feather Charts Showcase Dashboard" width="100%" />
   <br />
   <em>Executive analytics dashboard featuring AreaChart, BarChart, DonutChart, and RadarChart (see <code>examples/charts_showcase.py</code>)</em>
 </p>

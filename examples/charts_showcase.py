@@ -19,10 +19,6 @@ def generate_dashboard():
     dashboard.draw_text("FEATHER ANALYTICS ENGINE", 50.0, 36.0, size=24.0, color="#ffffff")
     dashboard.draw_text("Real-Time Telemetry & Vector Graphics Metrics • 60 FPS Subpixel Anti-Aliased", 50.0, 68.0, size=13.0, color="#6c7086")
 
-    # Status Pills
-    dashboard.draw_rounded_rect(1210.0, 36.0, 140.0, 32.0, rx=16.0, fill="rgba(166, 227, 161, 0.15)", stroke="#a6e3a1", stroke_width=1.5)
-    dashboard.draw_circle(1230.0, 52.0, 5.0, fill="#a6e3a1")
-    dashboard.draw_text("SYSTEM ONLINE", 1244.0, 44.0, size=11.0, color="#a6e3a1")
 
     # -------------------------------------------------------------------------
     # Panel 1: Area Chart (Top Half: 1300 x 360)
