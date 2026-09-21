@@ -268,4 +268,5 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-🤖 *Note: This README documentation was created by AI.*
+> 🤖 **Note:** This README was made with AI.
+
