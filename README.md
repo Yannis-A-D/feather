@@ -416,12 +416,6 @@ from feather import ui
 # 🎛️ Compose a modern glassmorphic card with flex stacks
 card = ui.Card(width=360, padding=24, corner_radius=18, background="rgba(255, 255, 255, 0.04)")
 
-# Header row with status pills
-header = ui.Row(gap=10)
-header.add(ui.Badge("PRO CLOUD", color="#a6e3a1"))
-header.add(ui.Badge("POPULAR", color="#cba6f7", dot=False))
-card.add(header)
-
 card.add(ui.Text("# $49 / month", size=24, color="#ffffff"))
 card.add(ui.Metric("1,650 FPS", label="SIMD Render Rate", trend="+420% vs Pillow"))
 card.add(ui.Divider())

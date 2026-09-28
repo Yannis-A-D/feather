@@ -37,12 +37,6 @@ def generate_ui_preview():
         shadow_color="rgba(0, 0, 0, 0.50)",
     )
 
-    # Header row with title and badge
-    header_row = ui.Row(gap=12.0)
-    header_row.add(ui.Badge("PRO CLOUD", color="#a6e3a1", bg_color="rgba(166, 227, 161, 0.15)"))
-    header_row.add(ui.Badge("MOST POPULAR", color="#cba6f7", bg_color="rgba(203, 166, 247, 0.15)", dot=False))
-    card1.add(header_row)
-
     card1.add(ui.Text("# $49 / month", size=24.0, color="#ffffff"))
     card1.add(ui.Text("Billed annually or $59 billed month-to-month.", size=12.0, color="#7982a9"))
     card1.add(ui.Divider(thickness=1.0, color="rgba(255, 255, 255, 0.08)", margin=6.0))
@@ -71,11 +65,6 @@ def generate_ui_preview():
         background="rgba(255, 255, 255, 0.04)",
         border_color="rgba(255, 255, 255, 0.12)",
     )
-
-    card2.add(ui.Row([
-        ui.Badge("CLUSTER TELEMETRY", color="#89b4fa"),
-        ui.Text("Region: `us-east-1`", size=11.0, color="#7982a9")
-    ], gap=16.0))
 
     card2.add(ui.Text("### Pipeline Execution", size=17.0, color="#ffffff"))
 
@@ -113,7 +102,6 @@ def generate_ui_preview():
         border_color="rgba(137, 180, 250, 0.25)",
     )
 
-    card3.add(ui.Badge("RICH TYPOGRAPHY", color="#fab387", bg_color="rgba(250, 179, 135, 0.15)"))
     card3.add(ui.Text("## Markdown Support", size=16.0, color="#ffffff"))
     
     code_demo = (
