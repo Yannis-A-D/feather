@@ -7,9 +7,10 @@ import math
 from typing import List, Sequence, Optional
 from feather import Canvas
 from .theme import Theme, resolve_theme
+from .animation import AnimatableChartMixin
 
 
-class DonutChart:
+class DonutChart(AnimatableChartMixin):
     """
     Modern Donut & Pie chart with smooth vector annular sectors,
     customizable cutout ratio, centered KPI metric text, and legend.

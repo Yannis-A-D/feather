@@ -7,9 +7,10 @@ import math
 from typing import Optional
 from feather import Canvas
 from .theme import Theme, resolve_theme
+from .animation import AnimatableChartMixin
 
 
-class Gauge:
+class Gauge(AnimatableChartMixin):
     """
     Radial Arc Gauge / Speedometer with rounded stroke caps, customizable
     min/max ranges, background track, and center KPI metric readout.

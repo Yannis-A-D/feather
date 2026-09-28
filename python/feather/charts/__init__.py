@@ -17,6 +17,14 @@ from .bar_chart import BarChart
 from .donut_chart import DonutChart, PieChart
 from .radar_chart import RadarChart
 from .gauge import Gauge
+from .animation import (
+    AnimatableChartMixin,
+    linear,
+    ease_out_cubic,
+    ease_in_out_cubic,
+    ease_out_bounce,
+    ease_out_elastic,
+)
 
 __all__ = [
     "Theme",
@@ -33,4 +41,11 @@ __all__ = [
     "PieChart",
     "RadarChart",
     "Gauge",
+    "AnimatableChartMixin",
+    "linear",
+    "ease_out_cubic",
+    "ease_in_out_cubic",
+    "ease_out_bounce",
+    "ease_out_elastic",
 ]
+

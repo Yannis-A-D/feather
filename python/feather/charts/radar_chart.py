@@ -7,9 +7,10 @@ import math
 from typing import List, Sequence, Optional
 from feather import Canvas
 from .theme import Theme, resolve_theme
+from .animation import AnimatableChartMixin
 
 
-class RadarChart:
+class RadarChart(AnimatableChartMixin):
     """
     Polygonal Radar & Spider chart for skills, benchmarks, and multi-variable
     metric profiling with anti-aliased concentric webs and glowing nodes.

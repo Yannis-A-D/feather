@@ -170,6 +170,8 @@ def generate_blueprint():
     out_path = os.path.join(output_dir, "blueprint_demo.png")
     canvas.save(out_path)
     print(f"[OK] Feather Architectural CAD Blueprint saved to: {out_path}")
+    return canvas
 
 if __name__ == "__main__":
     generate_blueprint()
+

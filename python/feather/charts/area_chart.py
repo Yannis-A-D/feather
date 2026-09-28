@@ -6,9 +6,10 @@ from __future__ import annotations
 from typing import List, Tuple, Sequence, Optional
 from feather import Canvas, LinearGradient
 from .theme import Theme, resolve_theme
+from .animation import AnimatableChartMixin
 
 
-class AreaChart:
+class AreaChart(AnimatableChartMixin):
     """
     High-performance, anti-aliased Area & Line chart with smooth spline
     interpolation, linear gradient area fills, and glowing point markers.

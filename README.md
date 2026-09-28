@@ -31,6 +31,8 @@ Designed as a modern, superior alternative to Pillow's (`PIL.ImageDraw`) renderi
 | **Transformation Matrix** | ⚠️ Limited image-level transforms | 🪶 **State stack: `rotate`, `scale`, `translate`** |
 | **SVG File Rendering** | ❌ None (requires CairoSVG + GTK DLLs) | 🪶 **Built-in pure Rust `resvg` (0 C dependencies)** |
 | **Built-in Modern Charts** | ❌ None (requires heavy Matplotlib) | 🪶 **Zero-dependency Area, Bar, Donut, Radar, & Gauges (`feather.charts`)** |
+| **Animated Chart Transitions** | ❌ None | 🪶 **60 FPS entrance transitions (`render_animation`)** |
+| **Interactive HTML Export** | ❌ None | 🪶 **Zero-dependency offline pan/zoom viewer (`save_html`)** |
 | **Jupyter Notebook Display** | ⚠️ Clunky boilerplate | 🪶 **Native `_repr_png_()` instant cell rendering** |
 | **Live Interactive Viewer** | ❌ None (only slow external Photo Viewer) | 🪶 **60 FPS desktop window with pan, zoom, & live pixel loupe** |
 | **Modern Animation (WebP/APNG)** | ❌ Poor/None | 🪶 **68% smaller WebP & 32-bit lossless APNG** |
@@ -472,6 +474,69 @@ feather view photo.png
 # 🚀 Run live hardware SIMD engine benchmark
 feather benchmark
 ```
+
+---
+
+### 17. Animated Chart Transitions (`render_animation`)
+
+Bring your static dashboards to life. Every chart in `feather.charts` inherits the `AnimatableChartMixin`, enabling one-line smooth 60 FPS entrance transitions exported directly to **Animated WebP**, **lossless APNG**, or **GIF** with mathematical easing curves (`cubic_out`, `bounce_out`, `elastic_out`, `cubic_in_out`, `linear`):
+
+<p align="center">
+  <img src="assets/animated_chart_demo.webp" alt="Animated Chart Entrance Transition" width="85%" />
+</p>
+
+```python
+from feather.charts import BarChart
+
+bar = BarChart(
+    width=800, height=450,
+    title="Throughput Acceleration (MB/s)",
+    subtitle="Smooth cubic ease-out entrance animation with subpixel pill caps",
+    theme="dark",
+)
+bar.set_categories(["Raw Vectors", "Alpha Blend", "Gradients", "Batch Blur", "Font Rendering"])
+bar.add_series("Feather (SIMD)", [850, 720, 940, 680, 890], color="#89b4fa")
+bar.add_series("Pillow (Baseline)", [180, 150, 210, 110, 195], color="#f38ba8")
+
+# Export directly to 60 FPS Animated WebP with bounce easing
+bar.render_animation(
+    "animated_chart.webp",
+    duration_seconds=1.5,
+    fps=30,
+    easing="bounce_out",
+    loop_count=0,
+    quality=90.0,
+    end_pause_seconds=1.0,
+)
+
+# Or extract individual Canvas frames for custom pipelines
+frames = bar.render_frames(duration_seconds=1.2, fps=30, easing="cubic_out")
+```
+
+---
+
+### 18. Standalone Interactive HTML Export (`save_html` / `to_html`)
+
+Export any Feather Canvas — whether an architectural CAD schematic, high-density dashboard, or generative artwork — to a 100% self-contained, offline HTML file with zero external dependencies (no CDN, no external scripts or stylesheets):
+
+```python
+import feather
+
+canvas = feather.Canvas(1280, 800, background="#071224")
+# ... draw complex vectors, blueprints, or dashboards ...
+
+# 1. Save directly as an interactive HTML viewer file
+canvas.save_html("schematic.html", title="Quantum Compute Facility - CAD Schematic")
+
+# 2. Or generate the HTML string for web apps / Streamlit / Flask
+html_str = canvas.to_html(title="Telemetry View")
+```
+
+**Viewer Features:**
+- 🖱️ **Pan & Zoom**: Smooth click-and-drag panning and cursor-centered infinite scroll-wheel zooming up to 6400% (with automatic pixelated rendering at high magnification).
+- 📱 **Mobile & Touch Pinch**: Native multi-touch pinch-to-zoom and drag navigation.
+- 🎯 **Real-time Pixel Inspector HUD**: Live `(X, Y)` coordinate readout hovering over any pixel.
+- 🎛️ **Floating Control Bar**: Instant Fit-to-Screen, Actual Size (1:1), and Zoom In/Out controls.
 
 ---
 

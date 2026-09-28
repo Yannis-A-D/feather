@@ -6,9 +6,10 @@ from __future__ import annotations
 from typing import List, Sequence, Optional
 from feather import Canvas
 from .theme import Theme, resolve_theme
+from .animation import AnimatableChartMixin
 
 
-class BarChart:
+class BarChart(AnimatableChartMixin):
     """
     Modern Bar & Column chart with rounded pill caps, multi-series
     grouping, value annotations, and automatic category spacing.

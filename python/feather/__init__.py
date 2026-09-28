@@ -62,6 +62,16 @@ def show_interactive(
 show_window = show_interactive
 
 
+def to_html(canvas: Canvas, title: str = "Feather Interactive Viewer") -> str:
+    """Export a Canvas as a self-contained, interactive HTML document with pan & zoom."""
+    return canvas.to_html(title=title)
+
+
+def save_html(canvas: Canvas, path: str, title: str = "Feather Interactive Viewer") -> None:
+    """Save a Canvas as a standalone, offline interactive HTML viewer file."""
+    canvas.save_html(path, title=title)
+
+
 class Canvas(_NativeCanvas):
     """
     A 2D drawing canvas backed by a high-performance, SIMD-accelerated
@@ -115,6 +125,17 @@ class Canvas(_NativeCanvas):
             line_spacing=line_spacing,
             font=font,
         )
+
+    def to_html(self, title: str = "Feather Interactive Viewer") -> str:
+        """Export this canvas as a self-contained, interactive HTML document with pan & zoom."""
+        from .html_viewer import generate_interactive_html
+        return generate_interactive_html(self, title=title)
+
+    def save_html(self, path: str, title: str = "Feather Interactive Viewer") -> None:
+        """Save this canvas as a standalone, offline interactive HTML viewer file."""
+        html_content = self.to_html(title=title)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(html_content)
 
     # --- Pythonic Context Managers for Clipping Masks ---
 
@@ -220,6 +241,28 @@ class Canvas(_NativeCanvas):
 
         return cls.from_bytes(w, h, array.tobytes())
 
+    @classmethod
+    def open(cls, path: str) -> Canvas:
+        """Load an image file (PNG, JPEG, WebP, BMP, TIFF) into a Canvas."""
+        return _NativeCanvas.open(path)
+
+    @classmethod
+    def from_bytes(cls, width: int, height: int, data: bytes) -> Canvas:
+        """Create a Canvas from raw RGBA pixel bytes."""
+        return _NativeCanvas.from_bytes(width, height, data)
+
+
+# Attach high-level Python methods to native canvas as well
+_NativeCanvas.to_html = Canvas.to_html
+_NativeCanvas.save_html = Canvas.save_html
+_NativeCanvas.draw_markdown = Canvas.draw_markdown
+_NativeCanvas.clipping_rect = Canvas.clipping_rect
+_NativeCanvas.clipping_rounded_rect = Canvas.clipping_rounded_rect
+_NativeCanvas.clipping_circle = Canvas.clipping_circle
+_NativeCanvas.transform_scope = Canvas.transform_scope
+_NativeCanvas.to_pillow = Canvas.to_pillow
+_NativeCanvas.to_numpy = Canvas.to_numpy
+
 
 from . import charts
 from . import ui
@@ -238,6 +281,8 @@ __all__ = [
     "save_animation",
     "show_interactive",
     "show_window",
+    "to_html",
+    "save_html",
     "charts",
     "ui",
     "version",
